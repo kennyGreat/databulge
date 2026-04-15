@@ -1522,66 +1522,173 @@ let selPlan=null, selSub=null;
 let _cachedToken=null, _tokenExpiry=0;
 async function getToken(){
   if(_cachedToken&&Date.now()<_tokenExpiry)return _cachedToken;
-  const {data:{session}}=await sb.auth.getSession();
-  _cachedToken=session?.access_token||null;
+  var tokenResult;
+  try { tokenResult = await sb.auth.getSession(); } catch(e) { return null; }
+  var tokenData = (tokenResult && tokenResult.data) ? tokenResult.data : {};
+  var tokenSession = tokenData.session || null;
+  _cachedToken = (tokenSession && tokenSession.access_token) ? tokenSession.access_token : null;
   _tokenExpiry=Date.now()+9*60*1000;
   return _cachedToken;
 }
 let fProv='All', fCat='All';
 let stuChecked=false, isStudent=false;
 
-window.addEventListener('DOMContentLoaded', async ()=>{
-  sb = window.supabase.createClient(SUPA_URL, ANON_KEY,
-    {auth:{persistSession:true,autoRefreshToken:true}});
-  document.addEventListener('click', e=>{
-    const d=document.getElementById('pdrop'), av=document.getElementById('nav-av');
-    if(!d.contains(e.target)&&!av.contains(e.target)) d.classList.add('hide');
-  });
-  document.getElementById('li-pass').addEventListener('keydown',e=>e.key==='Enter'&&doLogin());
-  document.getElementById('su-pass').addEventListener('keydown',e=>e.key==='Enter'&&doSignup());
-  document.querySelectorAll('.overlay').forEach(o=>
-    o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); }));
-  // Handle Google OAuth redirect
-  const urlParams = new URLSearchParams(window.location.hash.substring(1));
-  const accessToken = urlParams.get('access_token');
-  if(accessToken){
-    window.history.replaceState({}, document.title, window.location.pathname);
+// ══════════════════════════════════════════════════════════
+// ANDROID 10 & BELOW — UNIVERSAL AUTH INIT
+// Fixes: race condition, async/await crash, BroadcastChannel,
+//        structuredClone, destructuring, Promise.allSettled
+// ══════════════════════════════════════════════════════════
+
+// Polyfill BroadcastChannel — undefined on Android 10 WebView,
+// which causes Supabase @2 to throw on createClient
+if (typeof BroadcastChannel === 'undefined') {
+  window.BroadcastChannel = function(name) {
+    this._name = name;
+    this._listeners = [];
+    this.onmessage = null;
+    this.postMessage = function() {};
+    this.close = function() {};
+    this.addEventListener = function(type, fn) {
+      if (type === 'message') this._listeners.push(fn);
+    };
+    this.removeEventListener = function(type, fn) {
+      this._listeners = this._listeners.filter(function(l) { return l !== fn; });
+    };
+    this.dispatchEvent = function(e) { return true; };
+  };
+}
+
+// Polyfill structuredClone — undefined on Android 10,
+// Supabase uses it internally for session deep copy
+if (typeof structuredClone === 'undefined') {
+  window.structuredClone = function(obj) {
+    if (obj === null || typeof obj !== 'object') return obj;
+    try { return JSON.parse(JSON.stringify(obj)); } catch(e) { return obj; }
+  };
+}
+
+// Polyfill globalThis — needed by Supabase @2 internals
+if (typeof globalThis === 'undefined') {
+  window.globalThis = window;
+}
+
+// Safe localStorage with in-memory fallback (Android private mode)
+var _DB_STORAGE = (function() {
+  var _mem = {};
+  try {
+    localStorage.setItem('__db_t__', '1');
+    localStorage.removeItem('__db_t__');
+    return localStorage;
+  } catch(e) {
+    return {
+      getItem: function(k) { return Object.prototype.hasOwnProperty.call(_mem, k) ? _mem[k] : null; },
+      setItem: function(k, v) { _mem[k] = String(v); },
+      removeItem: function(k) { delete _mem[k]; },
+      key: function(i) { return Object.keys(_mem)[i] || null; },
+      get length() { return Object.keys(_mem).length; },
+      clear: function() { _mem = {}; }
+    };
   }
-  // Subscribe to auth state changes (catches PASSWORD_RECOVERY from email links)
-  sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'PASSWORD_RECOVERY') {
-      history.replaceState(null, '', window.location.pathname);
-      setTimeout(() => {
-        const m = document.getElementById('m-reset-pass');
-        if (m) m.classList.add('open');
-      }, 150);
-    } else if (event === 'SIGNED_IN' && session && !me) {
-      me = session.user;
-      await bootApp();
-    } else if (event === 'SIGNED_OUT') {
-      showWelcomeScreen();
+})();
+
+// Ensure Supabase uses our safe storage
+function _makeSupabaseClient() {
+  var opts = {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      storage: _DB_STORAGE,
+      storageKey: 'databulge_sb_auth',
+      detectSessionInUrl: true
+    }
+  };
+  return window.supabase.createClient(SUPA_URL, ANON_KEY, opts);
+}
+
+// The main init — written WITHOUT top-level async/await for Android 10 compatibility.
+// Uses .then() chains instead of await where the engine might not handle it.
+function _initApp() {
+  // Guard: Supabase CDN must be loaded
+  if (!window.supabase || !window.supabase.createClient) {
+    setTimeout(_initApp, 80);
+    return;
+  }
+
+  try {
+    sb = _makeSupabaseClient();
+  } catch(e) {
+    // If createClient throws (very old WebView), show auth screen gracefully
+    showWelcomeScreen();
+    document.getElementById('auth-screen').style.display = 'flex';
+    return;
+  }
+
+  // Wire up UI listeners (safe to do synchronously)
+  document.addEventListener('click', function(e) {
+    var d = document.getElementById('pdrop');
+    var av = document.getElementById('nav-av');
+    if (d && av && !d.contains(e.target) && !av.contains(e.target)) {
+      d.classList.add('hide');
     }
   });
 
-  // Check for recovery token in URL hash (from password reset email)
-  await checkRecoveryToken();
+  var liPass = document.getElementById('li-pass');
+  var suPass = document.getElementById('su-pass');
+  if (liPass) liPass.addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+  if (suPass) suPass.addEventListener('keydown', function(e) { if (e.key === 'Enter') doSignup(); });
 
-  const {data:{session}} = await sb.auth.getSession();
-  if(session){ me=session.user; await bootApp(); }
-  else { showWelcomeScreen(); }
-});
+  document.querySelectorAll('.overlay').forEach(function(o) {
+    o.addEventListener('click', function(e) { if (e.target === o) o.classList.remove('open'); });
+  });
+
+  // Handle Google OAuth hash redirect
+  try {
+    var hash = window.location.hash.substring(1);
+    if (hash && hash.indexOf('access_token') !== -1) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  } catch(e) {}
+
+  // Get session — using .then() for Android 10 compatibility
+  sb.auth.getSession().then(function(result) {
+    // Safe destructuring — don't use nested destructuring on Android 10
+    var data = (result && result.data) ? result.data : {};
+    var session = data.session || null;
+    if (session && session.user) {
+      me = session.user;
+      bootApp().catch(function(err) {
+        console.warn('bootApp error:', err);
+        showWelcomeScreen();
+      });
+    } else {
+      showWelcomeScreen();
+    }
+  }).catch(function(err) {
+    console.warn('getSession error:', err);
+    showWelcomeScreen();
+  });
+}
+
+// Kick off — use DOMContentLoaded but guard for already-loaded state
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _initApp);
+} else {
+  // DOM already ready (script ran late, or Android fires readyState early)
+  setTimeout(_initApp, 0);
+}
 
 // ── AUTH ──
 let rememberMe = false;
 
 // Pre-fill email if remembered
 (function(){
-  const saved = localStorage.getItem('de_remember_email');
+  var saved;
+  try { saved = _DB_STORAGE.getItem('de_remember_email'); } catch(e) { saved = null; }
   if(saved){
     rememberMe = true;
-    setTimeout(()=>{
-      const e=document.getElementById('li-email');if(e) e.value=saved;
-      const b=document.getElementById('rem-box');if(b){b.classList.add('on');b.innerHTML='<span style="color:#fff;font-size:10px;font-weight:800">✓</span>';}
+    setTimeout(function(){
+      var e=document.getElementById('li-email'); if(e) e.value=saved;
+      var b=document.getElementById('rem-box'); if(b){b.classList.add('on');b.innerHTML='<span style="color:#fff;font-size:10px;font-weight:800">✓</span>';}
     },50);
   }
 })();
@@ -1627,12 +1734,21 @@ async function confirmForgot(){
     return;
   }
   setBtnLoad('m-forgot-btn', true);
-  const {error} = await sb.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://www.databulge.com'
-  });
+  var forgotResult;
+  try {
+    forgotResult = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname
+    });
+  } catch(e) {
+    setBtnLoad('m-forgot-btn', false, 'Send Reset Link');
+    document.getElementById('m-forgot-err').textContent = e.message || 'Failed to send reset email';
+    document.getElementById('m-forgot-err').classList.remove('hide');
+    return;
+  }
   setBtnLoad('m-forgot-btn', false, 'Send Reset Link');
-  if(error){
-    document.getElementById('m-forgot-err').textContent = error.message;
+  var forgotErr = forgotResult ? forgotResult.error : null;
+  if(forgotErr){
+    document.getElementById('m-forgot-err').textContent = forgotErr.message;
     document.getElementById('m-forgot-err').classList.remove('hide');
     return;
   }
@@ -1686,17 +1802,23 @@ function setAuthErr(which,msg){
 }
 
 async function doLogin(){
-  const email=document.getElementById('li-email').value.trim();
-  const pass=document.getElementById('li-pass').value;
+  var email=(document.getElementById('li-email').value||'').trim();
+  var pass=document.getElementById('li-pass').value||'';
   if(!email||!pass){setAuthErr('login','Fill in all fields');return;}
   setBtnLoad('li-btn',true);
-  const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  var loginResult;
+  try { loginResult = await sb.auth.signInWithPassword({email:email,password:pass}); }
+  catch(e){ setBtnLoad('li-btn',false,'Sign In'); setAuthErr('login',e.message||'Login failed'); return; }
   setBtnLoad('li-btn',false,'Sign In');
-  if(error){setAuthErr('login',error.message);return;}
-  // Save email if Remember Me checked
-  if(rememberMe) localStorage.setItem('de_remember_email', email);
-  else localStorage.removeItem('de_remember_email');
-  me=data.user;
+  var loginErr = loginResult ? loginResult.error : null;
+  var loginData = loginResult ? loginResult.data : null;
+  if(loginErr){setAuthErr('login',loginErr.message);return;}
+  if(!loginData || !loginData.user){setAuthErr('login','Login failed — please try again');return;}
+  try {
+    if(rememberMe) _DB_STORAGE.setItem('de_remember_email', email);
+    else _DB_STORAGE.removeItem('de_remember_email');
+  } catch(e){}
+  me=loginData.user;
   document.getElementById('auth-screen').style.display='none';
   await bootApp();
 }
@@ -1709,15 +1831,16 @@ async function doSignup(){
   if(!name||!email||!pass){setAuthErr('su','Name, email & password required');return;}
   if(pass.length<6){setAuthErr('su','Password must be 6+ characters');return;}
   setBtnLoad('su-btn',true);
-  const {data,error}=await sb.auth.signUp({
-    email,password:pass,
-    options:{data:{full_name:name,phone,is_student:false}}
-  });
+  var signupResult;
+  try { signupResult = await sb.auth.signUp({email:email,password:pass,options:{data:{full_name:name,phone:phone,is_student:false}}}); }
+  catch(e){ setBtnLoad('su-btn',false,'Create Account'); setAuthErr('su',e.message||'Signup failed'); return; }
   setBtnLoad('su-btn',false,'Create Account');
-  if(error){setAuthErr('su',error.message);return;}
-  if(data.session){
-    me=data.user;
-    await sb.from('profiles').update({full_name:name,phone}).eq('id',me.id);
+  var suError = signupResult ? signupResult.error : null;
+  var suData = signupResult ? signupResult.data : null;
+  if(suError){setAuthErr('su',suError.message);return;}
+  if(suData && suData.session){
+    me=suData.user;
+    await sb.from('profiles').update({full_name:name,phone:phone}).eq('id',me.id);
     document.getElementById('auth-screen').style.display='none';
     toast('Welcome to DataBulge, '+name+'! 🎉','success');
     await bootApp();
@@ -1731,7 +1854,7 @@ async function doSignup(){
 }
 
 async function doLogout(){
-  await sb.auth.signOut();
+  try { await sb.auth.signOut(); } catch(e) {}
   me=null; myData=null; walBal=0;
   document.getElementById('app').style.display='none';
   document.getElementById('li-email').value='';
@@ -1753,8 +1876,12 @@ async function bootApp(){
   document.getElementById('pd-name').textContent=name;
   document.getElementById('pd-email').textContent=me.email;
   // Prime token cache immediately so first subscription is instant
-  const {data:{session:_s}}=await sb.auth.getSession();
-  if(_s){_cachedToken=_s.access_token;_tokenExpiry=Date.now()+9*60*1000;}
+  try {
+    var _sResult = await sb.auth.getSession();
+    var _sData = (_sResult && _sResult.data) ? _sResult.data : {};
+    var _s = _sData.session || null;
+    if(_s && _s.access_token){_cachedToken=_s.access_token;_tokenExpiry=Date.now()+9*60*1000;}
+  } catch(e){}
   // Warm up createSubscription edge function (kills cold start)
   fetch(`${FN}/createSubscription`,{method:'OPTIONS'}).catch(()=>{});
   await Promise.all([loadMyData(),loadPlans()]);
@@ -3286,89 +3413,7 @@ window.addEventListener('offline', function() {
 });
 
 console.log('[DataBulge v3.0] All upgrades loaded successfully.');
-
-// ── PASSWORD RECOVERY FLOW ──
-// Called on page load — detects ?type=recovery in URL hash from email link
-async function checkRecoveryToken() {
-  const hash = window.location.hash;
-  if (!hash) return;
-  const params = new URLSearchParams(hash.slice(1));
-  if (params.get('type') !== 'recovery') return;
-  const access_token  = params.get('access_token');
-  const refresh_token = params.get('refresh_token') || '';
-  if (!access_token) return;
-  // Clean URL
-  history.replaceState(null, '', window.location.pathname);
-  // Exchange token for session
-  const { error } = await sb.auth.setSession({ access_token, refresh_token });
-  if (error) { console.error('Recovery session error:', error.message); return; }
-  // Show the set-new-password modal
-  const m = document.getElementById('m-reset-pass');
-  if (m) m.classList.add('open');
-}
-
-// Called when user submits new password in the reset modal
-async function confirmResetPass() {
-  const pass    = document.getElementById('rp-pass').value;
-  const confirm = document.getElementById('rp-confirm').value;
-  const errEl   = document.getElementById('m-reset-err');
-  const okEl    = document.getElementById('m-reset-ok');
-  errEl.classList.add('hide');
-  okEl.classList.add('hide');
-  if (!pass || pass.length < 6) {
-    errEl.textContent = 'Password must be at least 6 characters.';
-    errEl.classList.remove('hide');
-    return;
-  }
-  if (pass !== confirm) {
-    errEl.textContent = 'Passwords do not match.';
-    errEl.classList.remove('hide');
-    return;
-  }
-  setBtnLoad('rp-btn', true);
-  const { error } = await sb.auth.updateUser({ password: pass });
-  setBtnLoad('rp-btn', false, 'Update Password');
-  if (error) {
-    errEl.textContent = error.message;
-    errEl.classList.remove('hide');
-    return;
-  }
-  okEl.classList.remove('hide');
-  // Auto-login after 2 seconds
-  setTimeout(async () => {
-    const m = document.getElementById('m-reset-pass');
-    if (m) m.classList.remove('open');
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) { me = session.user; showWelcomeScreen(); await bootApp(); }
-  }, 2000);
-}
-
 </script>
-
-
-<!-- PASSWORD RESET MODAL (shown when user arrives from reset email link) -->
-<div class="overlay" id="m-reset-pass">
-  <div class="modal">
-    <h2>🔐 Set New Password</h2>
-    <p class="ms">Choose a strong new password for your DataBulge account.</p>
-    <div id="m-reset-ok" class="auth-ok hide">✅ Password updated! Signing you in...</div>
-    <div id="m-reset-err" class="auth-err hide"></div>
-    <div class="field">
-      <label>New Password</label>
-      <div class="pw-wrap">
-        <input type="password" id="rp-pass" placeholder="Min. 6 characters" autocomplete="new-password"/>
-        <span class="eye" onclick="toggleEye('rp-pass',this)">👁</span>
-      </div>
-    </div>
-    <div class="field">
-      <label>Confirm Password</label>
-      <input type="password" id="rp-confirm" placeholder="Repeat your new password" autocomplete="new-password"/>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:8px;">
-      <button class="btn btn-primary btn-full" id="rp-btn" onclick="confirmResetPass()">Update Password</button>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>
