@@ -277,8 +277,6 @@ body::after {
 .chip-mtn{background:var(--mtn-bg);color:var(--mtn-txt);}
 .chip-airtel{background:var(--airtel-bg);color:var(--airtel-txt);}
 .chip-glo{background:var(--glo-bg);color:var(--glo-txt);}
-.chip-9mobile{background:#0d1f0d;color:#4ade80;}
-.chip-t2{background:#1a0d2e;color:#c084fc;}
 .chip-cat{background:rgba(99,102,241,.18);color:var(--indigo3);
   border:1px solid rgba(99,102,241,.25);}
 .status-badge{padding:4px 12px;border-radius:20px;font-size:.69rem;
@@ -2849,7 +2847,7 @@ function refreshWalDisplay(){
 async function loadPlans(){
   const {data:pld}=await sb.from('data_plans').select('*').eq('is_active',true).order('sort_order');
   allPlans=pld||[];
-  const nets=['All','MTN','GLO','AIRTEL','9MOBILE','T2'];
+  const nets=['All','MTN','GLO','AIRTEL'];
   const bar=document.getElementById('prov-bar');
   bar.innerHTML=nets.map(n=>
     `<button class="fb ${n==='All'?'on':''}" onclick="setProv(this,'${n}')">${n==='All'?'All Networks':n}</button>`
@@ -2907,7 +2905,7 @@ function openSubModal(pid){
   document.getElementById('m-plan-info').innerHTML=`
     <div class="mr"><span class="ml">Plan</span><strong>${selPlan.data_size}</strong></div>
     <div class="mr"><span class="ml">Network</span><span style="color:#fff">${prov} · ${selPlan.validity_days===1?'Daily':selPlan.validity_days===7?'Weekly':'Monthly'}</span></div>
-    
+    <div class="mr"><span class="ml">Total Cost</span><strong>${f(selPlan.selling_price)}</strong></div>
     <div class="mr hl"><span>1st Installment</span><span>${dailyDisp}</span></div>`;
   document.getElementById('m-student-hint')?.classList.add('hide');
   document.getElementById('m-wallet-check').innerHTML=`
