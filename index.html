@@ -814,10 +814,11 @@ nav{
 .db-phone{
   width:100%;max-width:430px;min-height:calc(100vh - 36px);position:relative;
   border-radius:34px;overflow:hidden;
-  background:linear-gradient(180deg, rgba(10,18,64,.45), rgba(6,13,43,.78));
+  background:linear-gradient(180deg, #0a1240 0%, #060d2b 100%);
   border:1px solid rgba(255,255,255,.06);
   box-shadow:0 20px 80px rgba(0,0,0,.45);
-  backdrop-filter:blur(18px);
+  /* backdrop-filter removed: kills onclick events on Android 10 WebView
+     (overflow:hidden + backdrop-filter = click events silently blocked) */
 }
 .db-noise{position:absolute;inset:0;pointer-events:none;opacity:.06;background-image:radial-gradient(circle at 25% 25%, #fff 0 1px, transparent 1px),radial-gradient(circle at 75% 40%, #fff 0 1px, transparent 1px),radial-gradient(circle at 60% 80%, #fff 0 1px, transparent 1px);background-size:120px 120px,140px 140px,160px 160px;}
 .db-topbar{padding:14px 18px 0;display:flex;justify-content:center;}
@@ -834,8 +835,8 @@ nav{
 .db-headline{font-family:'Bricolage Grotesque',sans-serif;font-size:2.25rem;line-height:1.02;letter-spacing:-.05em;color:#fff;max-width:320px;}
 .db-subline{max-width:300px;font-size:1rem;line-height:1.6;color:var(--text2);font-weight:500;}
 .db-subline strong{color:#fff;}
-.db-cta-stack{width:100%;max-width:300px;display:flex;flex-direction:column;gap:12px;margin-top:6px;}
-.db-main-btn{width:100%;border:none;border-radius:18px;padding:16px 18px;font-family:inherit;font-size:1rem;font-weight:800;cursor:pointer;transition:transform .18s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease, opacity .22s ease;color:#fff;position:relative;overflow:hidden;}
+.db-cta-stack{width:100%;max-width:300px;display:flex;flex-direction:column;gap:12px;margin-top:6px;pointer-events:auto;position:relative;z-index:10;}
+.db-main-btn{width:100%;border:none;border-radius:18px;padding:16px 18px;font-family:inherit;font-size:1rem;font-weight:800;cursor:pointer;transition:transform .18s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease, opacity .22s ease;color:#fff;position:relative;outline:none;-webkit-tap-highlight-color:transparent;overflow:hidden;}
 .db-main-btn:active{transform:scale(.985)}
 .db-main-btn.primary{background:linear-gradient(135deg, #7dd3fc 0%, #67e8f9 16%, #60a5fa 40%, #6366f1 70%, #818cf8 100%);background-size:200% 200%;box-shadow:0 0 0 1px rgba(255,255,255,.14) inset,0 10px 30px rgba(99,102,241,.32),0 0 24px rgba(103,232,249,.28);animation:dbGradientMove 5s linear infinite, dbGlowPulse 1.8s ease-in-out infinite;}
 .db-main-btn.primary::before{content:"";position:absolute;top:-120%;left:-35%;width:55%;height:340%;transform:rotate(20deg);background:linear-gradient(90deg, transparent, rgba(255,255,255,.42), transparent);animation:dbShine 2.8s ease-in-out infinite;}
@@ -2749,6 +2750,65 @@ function showSignupScreen(){
   if(r) r.classList.add('hide');
   flip(false);
 }
+
+// Android 10 WebView fix: bind touchend as fallback for onclick
+// on the two main auth buttons. Some WebViews block onclick but
+// allow touchend when parent has overflow:hidden + filters.
+(function() {
+  function _bindAuthBtn(id, fn) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var _touched = false;
+    el.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      if (!_touched) { _touched = true; fn(); setTimeout(function(){ _touched = false; }, 600); }
+    }, { passive: false });
+  }
+  function _bindAuthBtnClass(cls, fn) {
+    var els = document.querySelectorAll('.' + cls);
+    for (var i = 0; i < els.length; i++) {
+      (function(el) {
+        var _touched = false;
+        el.addEventListener('touchend', function(e) {
+          e.preventDefault();
+          if (!_touched) { _touched = true; fn(); setTimeout(function(){ _touched = false; }, 600); }
+        }, { passive: false });
+      })(els[i]);
+    }
+  }
+  // Bind after DOM ready
+  function _bindAll() {
+    // Find buttons by their onclick text since they have no stable IDs
+    var btns = document.querySelectorAll('.db-main-btn');
+    for (var i = 0; i < btns.length; i++) {
+      var btn = btns[i];
+      var oc = btn.getAttribute('onclick') || '';
+      if (oc.indexOf('showLoginScreen') !== -1) {
+        (function(b){ 
+          var _t=false;
+          b.addEventListener('touchend', function(e){ 
+            e.preventDefault(); 
+            if(!_t){_t=true; showLoginScreen(); setTimeout(function(){_t=false;},600);}
+          }, {passive:false}); 
+        })(btn);
+      }
+      if (oc.indexOf('showSignupScreen') !== -1) {
+        (function(b){ 
+          var _t=false;
+          b.addEventListener('touchend', function(e){ 
+            e.preventDefault(); 
+            if(!_t){_t=true; showSignupScreen(); setTimeout(function(){_t=false;},600);}
+          }, {passive:false}); 
+        })(btn);
+      }
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _bindAll);
+  } else {
+    setTimeout(_bindAll, 100);
+  }
+})();
 
 function flip(toLogin){
   var w=document.getElementById('welcome-screen');
