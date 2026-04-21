@@ -1106,18 +1106,25 @@ html, body {
 #landing-page {
   display:block; /* visible by default; hidden when session found */
   min-height:100vh;
+  /* Fix: allow scrolling on small phones so the button is always reachable */
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
   background:radial-gradient(circle at top, #0b1535, #050816);
   font-family:'Syne','DM Sans',Arial,sans-serif;
   color:#fff;
+  /* Fix: ensure it sits above nothing that could block taps */
+  position:relative;
+  z-index:1;
 }
 .lp-wrap {
   max-width:900px;
   margin:auto;
-  padding:28px 20px 40px;
+  padding:20px 16px 60px; /* extra bottom padding so button clears nav/chrome */
+  box-sizing:border-box;
 }
 .lp-logo {
   text-align:center;
-  margin-bottom:24px;
+  margin-bottom:18px;
 }
 .lp-logo img {
   width:72px;height:72px;
@@ -1132,39 +1139,49 @@ html, body {
 }
 .lp-hero {
   text-align:center;
-  padding:36px 20px;
+  padding:24px 16px; /* reduced from 36px to fit small screens */
   border-radius:20px;
   background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(34,197,94,.09));
   border:1px solid rgba(255,255,255,.12);
 }
 .lp-hero h1 {
-  font-size:1.8rem;font-weight:900;margin:0 0 12px;
+  font-size:clamp(1.3rem,6vw,1.8rem);font-weight:900;margin:0 0 10px;
   background:linear-gradient(135deg,#fff,#a5b4fc);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
 }
 .lp-hero p {
-  color:#cbd5ff;font-size:.97rem;line-height:1.6;margin:0 0 24px;
+  color:#cbd5ff;font-size:clamp(.85rem,4vw,.97rem);line-height:1.6;margin:0 0 18px;
 }
 .lp-steps {
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:12px;margin:0 0 28px;
+  /* Fix: on very small phones use single column to prevent overflow */
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:8px;margin:0 0 22px;
 }
 .lp-step {
   background:rgba(255,255,255,.06);
-  padding:14px 12px;border-radius:14px;
+  padding:10px 10px;border-radius:14px;
   border:1px solid rgba(255,255,255,.1);
-  font-size:.88rem;font-weight:600;color:#e0e7ff;
+  font-size:clamp(.78rem,3.5vw,.88rem);font-weight:600;color:#e0e7ff;
   text-align:center;
 }
 .lp-btns {
   display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
 }
 .lp-btn {
-  padding:13px 22px;border-radius:11px;
-  font-size:.95rem;font-weight:800;
+  /* Fix: ensure minimum touch target size (44px+) for all phones */
+  min-height:48px;
+  padding:13px 28px;border-radius:11px;
+  font-size:clamp(.9rem,4.5vw,.95rem);font-weight:800;
   text-decoration:none;cursor:pointer;border:none;
   transition:transform .15s,box-shadow .15s;
+  /* Fix: prevent ghost tap / double-tap issues on Android */
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  -webkit-appearance:none;
+  outline:none;
+  /* Fix: prevent text from being selectable on tap */
+  user-select:none;-webkit-user-select:none;
 }
 .lp-btn:active{transform:scale(.97);}
 .lp-btn-primary {
@@ -1172,13 +1189,23 @@ html, body {
   color:#fff;
   box-shadow:0 6px 24px rgba(37,211,102,.4);
   letter-spacing:.08em;
+  /* Fix: ensure button is wide enough on small screens */
+  min-width:180px;
+  width:100%;
+  max-width:300px;
 }
 .lp-btn-whatsapp {
   background:#25D366;color:#062b12;
 }
 .lp-footer {
-  text-align:center;margin-top:28px;
+  text-align:center;margin-top:24px;
   font-size:.8rem;color:#94a3b8;
+}
+/* Fix: small phone (≤360px) overrides */
+@media(max-width:360px){
+  .lp-hero{padding:18px 12px;}
+  .lp-steps{grid-template-columns:1fr 1fr;}
+  .lp-btn-primary{font-size:.88rem;padding:14px 20px;}
 }
 </style>
 
@@ -1271,7 +1298,7 @@ html, body {
       </div>
 
       <div class="lp-btns">
-        <button class="lp-btn lp-btn-primary" onclick="openApp()">OPEN APP</button>
+        <button class="lp-btn lp-btn-primary" onclick="openApp();return false;" type="button">OPEN APP</button>
 
       </div>
     </div>
@@ -2701,13 +2728,28 @@ function openApp() {
   var lp = document.getElementById('landing-page');
   var authEl = document.getElementById('auth-screen');
   function _reveal() {
-    if (authEl) { authEl.style.display = 'block'; authEl.style.visibility = 'visible'; }
+    if (authEl) {
+      authEl.style.display = 'block';
+      authEl.style.visibility = 'visible';
+      authEl.style.opacity = '1';
+    }
     showWelcomeScreen();
+    // Scroll to top so auth screen starts at top on all phones
+    window.scrollTo(0, 0);
+    try { document.body.scrollTop = 0; document.documentElement.scrollTop = 0; } catch(e){}
   }
   if (lp) {
-    lp.style.transition = 'opacity .25s';
-    lp.style.opacity = '0';
-    setTimeout(function() { lp.style.display = 'none'; _reveal(); }, 260);
+    var done = false;
+    function _finish() {
+      if (done) return; done = true;
+      lp.style.display = 'none';
+      _reveal();
+    }
+    try {
+      lp.style.transition = 'opacity .2s';
+      lp.style.opacity = '0';
+    } catch(e) {}
+    setTimeout(_finish, 250); // guaranteed fallback
   } else {
     _reveal();
   }
