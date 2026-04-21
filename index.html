@@ -1104,7 +1104,7 @@ html, body {
    Hides instantly if user is already logged in
 ═══════════════════════════════════════════════ */
 #landing-page {
-  display:block; /* visible by default; hidden when session found */
+  display:none; /* removed */
   min-height:100vh;
   background:radial-gradient(circle at top, #0b1535, #050816);
   font-family:'Syne','DM Sans',Arial,sans-serif;
@@ -1241,16 +1241,6 @@ html, body {
 })();
 </script>
 
-
-<!-- Injected auth page styles from uploaded auth.html -->
-<style id="uploaded-auth-style">
-*{margin:0;padding:0;box-sizing:border-box;}
-input,button{font-family:inherit;}
-input[type=text],input[type=email],input[type=password],input[type=tel]{-webkit-appearance:none;appearance:none;}
-@-webkit-keyframes spin{to{-webkit-transform:rotate(360deg);transform:rotate(360deg);}};
-@keyframes spin{to{transform:rotate(360deg);}};
-</style>
-
 </head>
 <body>
 
@@ -1259,43 +1249,10 @@ input[type=text],input[type=email],input[type=password],input[type=tel]{-webkit-
      Hides automatically if user is already logged in.
      "Open App" button transitions to auth screen.
 ═══════════════════════════════════════════════ -->
-<div id="landing-page">
-  <div class="lp-wrap">
-
-    <div class="lp-logo">
-      <img src="https://databulge.com/logo-512.png" alt="DataBulge Logo"/>
-      <h2>DataBulge</h2>
-    </div>
-
-    <div class="lp-hero">
-      <h1>Buy Data Now, Pay Small Small</h1>
-      <p>DataBulge helps you buy mobile data using installment payments.<br>
-         Instead of paying everything at once, you pay small small over time.</p>
-
-      <div class="lp-steps">
-        <div class="lp-step">1️⃣ Choose your data plan</div>
-        <div class="lp-step">2️⃣ Start paying small small</div>
-        <div class="lp-step">3️⃣ Track wallet &amp; subscriptions</div>
-        <div class="lp-step">4️⃣ Complete your payment</div>
-        <div class="lp-step">5️⃣ Stay connected easily</div>
-      </div>
-
-      <div class="lp-btns">
-        <button class="lp-btn lp-btn-primary" onclick="openApp()">OPEN APP</button>
-
-      </div>
-    </div>
-
-    <div class="lp-footer">&copy; Vortexedge Limited 2026</div>
-  </div>
-</div>
 
 <div id="toast-wrap"></div>
 
-<!-- ══════════════════════════════════════
-     AUTH SCREEN
-══════════════════════════════════════ -->
-<div id="auth-screen" style="display:none;">
+<div id="auth-screen" style="display:block;width:100%;min-height:100vh;background:#060d2b;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 <!-- ══ FORGOT PASSWORD OVERLAY ═══════════════════════════════════════════ -->
 <div id="forgot-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:200;overflow-y:auto;-webkit-overflow-scrolling:touch;">
   <div style="min-height:100%;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;padding:20px 16px;">
@@ -1447,11 +1404,9 @@ input[type=text],input[type=email],input[type=password],input[type=tel]{-webkit-
     </div>
   </div>
 </div>
-</div>
 
-<!-- ══════════════════════════════════════
-     MAIN APP
-══════════════════════════════════════ -->
+<!-- ══ SCRIPTS ════════════════════════════════════════════════════════════ -->
+</div>
 
 <div id="app">
   <!-- NAV -->
@@ -2706,19 +2661,11 @@ function showResetPasswordScreen() { _authShow('auth-reset'); }
 function flip(toLogin)             { _authShow(toLogin ? 'auth-login' : 'auth-signup'); }
 
 function openApp() {
-  var lp = document.getElementById('landing-page');
   var authEl = document.getElementById('auth-screen');
-  function _reveal() {
-    if (authEl) { authEl.style.display = 'block'; authEl.style.visibility = 'visible'; }
-    showWelcomeScreen();
-  }
-  if (lp) {
-    lp.style.transition = 'opacity .25s';
-    lp.style.opacity = '0';
-    setTimeout(function() { lp.style.display = 'none'; _reveal(); }, 260);
-  } else {
-    _reveal();
-  }
+  var lp = document.getElementById('landing-page');
+  if (lp) lp.style.display = 'none';
+  if (authEl) { authEl.style.display = 'block'; authEl.style.visibility = 'visible'; }
+  showWelcomeScreen();
 }
 
 function openTermsModal()  { var o=document.getElementById('terms-overlay');  if(o) o.style.display='block'; }
@@ -4737,12 +4684,16 @@ console.log('[DataBulge v3.0] All upgrades loaded successfully.');
 function checkLandingGate(hasSession) {
   var landing = document.getElementById('landing-page');
   var authScr = document.getElementById('auth-screen');
+  var appEl = document.getElementById('app');
   if (hasSession) {
-    // Logged in — skip landing, go straight to app
     if (landing) landing.style.display = 'none';
-    if (authScr) authScr.style.display = '';
+    if (authScr) authScr.style.display = 'none';
+    if (appEl) appEl.style.display = '';
+  } else {
+    if (landing) landing.style.display = 'none';
+    if (authScr) authScr.style.display = 'block';
+    if (appEl) appEl.style.display = 'none';
   }
-  // Logged out — landing stays visible (it's the default), auth stays hidden
 }
 </script>
 
