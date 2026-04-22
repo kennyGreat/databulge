@@ -87,6 +87,8 @@ END SUPABASE NOTES
 -->
 
 <meta charset="UTF-8"/>
+<!-- CRITICAL: white background before JS loads — prevents navy flash on slow 3G/Android 8 -->
+<style>html,body{background:#fff!important;background-image:none!important;}body::before,body::after{display:none!important;}#auth-screen{display:block;background:#fff;}#app{display:none;}</style>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 <title>DataBulge — Installment Data Plans by Vortexedge Limited</title>
@@ -297,11 +299,8 @@ body::after {
 .student-tag{padding:2px 9px;border-radius:20px;font-size:.66rem;font-weight:800;
   background:var(--purple-bg);color:#c4b5fd;border:1px solid rgba(139,92,246,.3);}
 
-/* ═══════════════════════════════════════════════
-   AUTH SCREEN — Full Blue Immersion
-═══════════════════════════════════════════════ */
-#auth-screen{
-  display:flex;min-height:100vh;position:relative;z-index:1;}
+/* AUTH SCREEN — old dark theme removed */
+#auth-screen{ position:relative; z-index:1; }
 
 /* LEFT PANEL — same gorgeous gradient */
 .auth-left{
@@ -797,16 +796,7 @@ nav{
    DATABULGE WELCOME + AUTH OVERRIDES
 ═══════════════════════════════════════ */
 #auth-screen{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-  background:
-    radial-gradient(circle at 15% 10%, rgba(99,102,241,.34), transparent 28%),
-    radial-gradient(circle at 85% 85%, rgba(56,189,248,.18), transparent 30%),
-    radial-gradient(circle at 50% 50%, rgba(129,140,248,.06), transparent 45%),
-    linear-gradient(180deg, #04071a 0%, #060d2b 45%, #08103a 100%);
+  /* dark gradients removed — white auth UI takes over */
 }
 #auth-screen .auth-left,
 #auth-screen .auth-right{display:none!important;}
@@ -936,16 +926,7 @@ html, body {
 }
 
 #auth-screen{
-  min-height: 100vh;
-  min-height: 100svh;
-  min-height: 100dvh;
-  padding:
-    max(12px, env(safe-area-inset-top))
-    max(12px, env(safe-area-inset-right))
-    max(12px, env(safe-area-inset-bottom))
-    max(12px, env(safe-area-inset-left));
-  align-items: center;
-  justify-content: center;
+  /* old mobile auth overrides removed */
 }
 
 .db-auth-shell{
@@ -1062,13 +1043,7 @@ html, body {
 }
 
 @media (max-width: 380px){
-  #auth-screen{
-    padding:
-      max(8px, env(safe-area-inset-top))
-      max(8px, env(safe-area-inset-right))
-      max(8px, env(safe-area-inset-bottom))
-      max(8px, env(safe-area-inset-left));
-  }
+  #auth-screen{ /* small screen padding removed */ }
   .db-phone{
     width: 100%;
     border-radius: 20px;
@@ -1174,16 +1149,30 @@ html, body {
 
 <!-- ═══ AUTH GLOBAL STYLES ══════════════════════════════════════ -->
 <style>
-/* ── AUTH SCREEN OVERRIDE: white background, centred card ── */
+/* ── AUTH SCREEN — white background, works on Android 4.4+ ── */
+/* Override the dark body background when auth is the first visible element */
+body{background:#fff!important;background-image:none!important;}
+body::before,body::after{display:none!important;}
 #auth-screen{
-  display:none;
+  display:block;
   width:100%;min-height:100vh;
   background:#fff;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
+  position:relative;
+  z-index:10;
 }
-/* When auth is active the body bg should also look white on scroll-bounce */
-body.auth-active{background:#f0f2f5;}
+/* When auth is active: white body (already set above) */
+/* When app is active: restore dark body */
+body.app-active{
+  background:var(--deep2)!important;
+  background-image:
+    radial-gradient(ellipse at 20% 0%,   rgba(67,56,202,.35) 0%,transparent 45%),
+    radial-gradient(ellipse at 80% 100%, rgba(56,189,248,.20) 0%,transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(99,102,241,.08) 0%,transparent 70%)!important;
+}
+body.app-active::before{display:block!important;}
+body.app-active::after{display:block!important;}
 
 /* ── AUTH LAYOUT ROOT ── */
 .a-root{
@@ -3083,6 +3072,10 @@ function _authShow(id) {
 
 function showWelcomeScreen() {
   _authShow('a-scr-welcome');
+  // Restore white body background for auth screen
+  try { document.body.classList.remove('app-active'); } catch(e) {}
+  document.body.style.background = '#fff';
+  document.body.style.backgroundImage = 'none';
   var authEl = document.getElementById('auth-screen');
   if (authEl) { authEl.style.display = 'block'; authEl.style.visibility = 'visible'; }
   var appEl = document.getElementById('app');
@@ -3293,6 +3286,10 @@ async function doLogout(){
   document.getElementById('app').style.display='none';
   var _liE=document.getElementById('li-email'); if(_liE) _liE.value='';
   var _liP=document.getElementById('li-pass');  if(_liP) _liP.value='';
+  // Restore white background for auth
+  try { document.body.classList.remove('app-active'); } catch(e) {}
+  document.body.style.background = '#fff';
+  document.body.style.backgroundImage = 'none';
   showWelcomeScreen();
   document.getElementById('auth-screen').style.display='block';
   toast('Signed out','info');
@@ -3300,6 +3297,10 @@ async function doLogout(){
 
 // ── BOOT APP ──
 async function bootApp(){
+  // Restore dark theme for app
+  try { document.body.classList.add('app-active'); } catch(e) {}
+  document.body.style.background = '';
+  document.body.style.backgroundImage = '';
   document.getElementById('app').style.display='block';
   document.getElementById('auth-screen').style.display='none';
   const meta=me.user_metadata||{};
