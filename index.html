@@ -1524,7 +1524,7 @@ html, body {
       </div>
       <div class="wb-deco2">₦</div>
       <div class="wb-acts">
-        <button class="wb-btn" onclick="openFundModal()">+ Fund Wallet</button>
+        <button class="wb-btn" onclick="openFundModal()" style="width:100%;display:block;margin-top:10px;text-align:center;font-weight:800;font-size:.97rem;">+ Fund Account</button>
         <button class="wb-btn-sky" onclick="gotoTab('wallet',null)">View History</button>
       </div>
     </div>
@@ -1585,7 +1585,8 @@ html, body {
 
     <!-- PLANS TAB -->
     <div id="tab-plans" class="hide">
-      <div class="sh"><div class="sh-title">Available Data Plans</div><button class="btn btn-primary btn-sm" onclick="openFundModal()" style="white-space:nowrap;">+ Fund Wallet</button></div>
+      <div class="sh"><div class="sh-title">Available Data Plans</div></div>
+      <button class="btn btn-primary" onclick="openFundModal()" style="width:100%;display:block;margin-bottom:12px;padding:11px;font-size:.97rem;font-weight:800;">+ Fund Account</button>
       <div class="fbar" id="prov-bar"></div>
       <div class="fbar" id="cat-bar">
         <button class="fb on" onclick="setCat(this,'All')">All Types</button>
@@ -1632,14 +1633,13 @@ html, body {
     <h2>Subscribe to Plan 📶</h2>
     <p class="ms">Installments deducted automatically from your wallet.</p>
 
-    <!-- Payment Duration -->
-    <div class="field" style="margin:0 0 12px;">
+    <div class="field" style="margin:0 0 14px;">
       <label style="margin-bottom:8px;display:block;font-weight:700;">Payment Duration</label>
       <div style="display:flex;gap:8px;">
-        <button id="opt-7" class="btn btn-outline" style="flex:1;padding:10px 4px;font-size:.85rem;" onclick="selectPayOpt(7)">
+        <button id="opt-7" class="btn btn-outline" style="flex:1;padding:11px 4px;font-size:.88rem;" onclick="selectPayOpt(7)">
           📅 7 Days
         </button>
-        <button id="opt-28" class="btn btn-outline" style="flex:1;padding:10px 4px;font-size:.85rem;" onclick="selectPayOpt(28)">
+        <button id="opt-28" class="btn btn-outline" style="flex:1;padding:11px 4px;font-size:.88rem;" onclick="selectPayOpt(28)">
           🗓️ 28 Days
         </button>
       </div>
@@ -1651,42 +1651,33 @@ html, body {
       <div class="msec" id="m-wallet-check" style="margin-bottom:12px;"></div>
 
       <!-- Auto-Fund -->
-      <div class="field" style="margin-bottom:12px;border:1px solid rgba(99,102,241,.25);border-radius:10px;padding:12px;background:rgba(99,102,241,.07);">
-        <div style="font-size:.9rem;font-weight:800;color:var(--indigo3);margin-bottom:6px;">&#128179; Auto-Fund</div>
-        <p style="font-size:.76rem;color:var(--text2);margin-bottom:10px;line-height:1.55;">Automatically charge your card a set amount to fund this plan until fully paid. Stops when plan completes.</p>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;">
+      <div class="field" style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.25);border-radius:10px;padding:12px;margin-bottom:12px;">
+        <div style="font-size:.9rem;font-weight:800;color:var(--indigo3);margin-bottom:5px;">&#128179; Auto-Fund</div>
+        <p style="font-size:.75rem;color:var(--text2);margin-bottom:10px;line-height:1.55;">This takes the stress off you &#8212; auto-debits your card to fund this plan until fully paid, then stops.</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:0;">
           <span style="font-size:.84rem;color:var(--text);font-weight:600;">Enable Auto-Fund</span>
           <div id="autofund-toggle" onclick="toggleAutoFund()"
-            style="width:44px;height:24px;border-radius:12px;background:#334155;
-                   position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;">
-            <div id="autofund-knob"
-              style="width:20px;height:20px;border-radius:50%;background:#fff;
-                     position:absolute;top:2px;left:2px;transition:transform .2s;"></div>
+            style="width:44px;height:24px;border-radius:12px;background:#334155;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;">
+            <div id="autofund-knob" style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .2s;"></div>
           </div>
         </div>
-        <div id="autofund-fields" style="display:none;">
-          <div class="field" style="margin-bottom:6px;">
-            <label style="font-size:.78rem;margin-bottom:4px;display:block;">Amount to auto-debit each time (&#8358;)</label>
-            <input type="number" id="m-autofund-amt" class="input" placeholder="e.g. 500" style="width:100%;"/>
-          </div>
-          <p style="font-size:.71rem;color:var(--text2);line-height:1.5;margin:0;">Card charged this amount repeatedly until plan is fully paid. Cancel anytime from Wallet.</p>
+        <div id="autofund-fields" style="display:none;margin-top:10px;">
+          <label style="font-size:.76rem;color:var(--text2);display:block;margin-bottom:4px;">Amount to auto-debit each time (&#8358;)</label>
+          <input type="number" id="m-autofund-amt" class="input" placeholder="e.g. 500" style="width:100%;"/>
         </div>
       </div>
 
       <!-- Auto-Renew -->
-      <div class="field" style="margin:0 0 12px;">
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:0;">
-          <div id="autorenew-toggle" onclick="toggleAutoRenew()"
-            style="width:44px;height:24px;border-radius:12px;background:#334155;
-                   position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;">
-            <div id="autorenew-knob"
-              style="width:20px;height:20px;border-radius:50%;background:#fff;
-                     position:absolute;top:2px;left:2px;transition:transform .2s;"></div>
+      <div class="field" style="margin:0 0 14px;">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:0;justify-content:space-between;">
+          <div>
+            <span style="font-size:.88rem;color:var(--text2);">&#128260; <strong style="color:#fff;">Auto-Renew</strong></span>
+            <div style="font-size:.73rem;color:var(--text2);margin-top:2px;margin-left:22px;">Auto-renew when complete</div>
           </div>
-          <span style="font-size:.88rem;color:var(--text2);">
-            &#128260; <strong style="color:#fff;">Auto-Renew</strong>
-            <span style="display:block;font-size:.73rem;margin-top:2px;">Auto-renew when complete</span>
-          </span>
+          <div id="autorenew-toggle" onclick="toggleAutoRenew()"
+            style="width:44px;height:24px;border-radius:12px;background:#334155;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;">
+            <div id="autorenew-knob" style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .2s;"></div>
+          </div>
         </label>
       </div>
 
@@ -1914,61 +1905,80 @@ html, body {
 <!-- FUND WALLET MODAL -->
 <div class="overlay" id="m-fund">
   <div class="modal">
-    <h2>Fund Wallet &#128179;</h2>
-    <p class="ms">Top up your DataBulge wallet balance.</p>
+    <h2>Fund Account &#128179;</h2>
+    <p class="ms">Top up your DataBulge wallet.</p>
     <div class="msec">
       <div class="mr"><span class="ml">Current Balance</span>
         <span id="m-fund-bal" style="font-weight:800;color:var(--indigo3)">&#8358;0.00</span></div>
     </div>
-    <!-- Tab Switcher -->
     <div style="display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,.1);">
       <button id="fund-tab-va" onclick="switchFundTab('va')"
-        style="flex:1;padding:9px 6px;background:none;border:none;border-bottom:2px solid var(--indigo);
-               color:var(--indigo3);font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;">
+        style="flex:1;padding:9px 6px;background:none;border:none;border-bottom:2px solid var(--indigo);color:var(--indigo3);font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;">
         &#127968; Bank Transfer
       </button>
       <button id="fund-tab-af" onclick="switchFundTab('af')"
-        style="flex:1;padding:9px 6px;background:none;border:none;border-bottom:2px solid transparent;
-               color:var(--text2);font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;">
+        style="flex:1;padding:9px 6px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text2);font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;">
         &#128179; Auto-Fund (Card)
       </button>
     </div>
-
-    <!-- Bank Transfer Panel -->
     <div id="fund-panel-va">
       <div id="m-va-fund" class="hide">
         <div class="va-card" id="m-va-card"></div>
         <div class="hint indigo">&#128161; Transfer to the account above. Paystack credits your wallet automatically.</div>
       </div>
-      <div id="m-fund-hint" class="hint green hide">Your virtual account is ready. Transfer any amount to fund your wallet instantly.</div>
+      <div id="m-fund-hint" class="hint green hide">Ready! Transfer any amount to fund your wallet instantly.</div>
       <div id="m-fund-setup" class="hide">
-        <p style="font-size:.83rem;color:var(--text2);margin-bottom:10px;">You need a dedicated virtual account to fund your wallet via bank transfer.</p>
+        <p style="font-size:.83rem;color:var(--text2);margin-bottom:10px;">Set up your dedicated virtual account to fund via bank transfer.</p>
         <button class="btn btn-primary" onclick="setupVAFromFund()">Get My Virtual Account</button>
       </div>
       <div class="modal-acts">
         <button class="btn btn-outline" onclick="closeM('m-fund')">Close</button>
       </div>
     </div>
-
-    <!-- Auto-Fund Panel -->
     <div id="fund-panel-af" style="display:none;">
       <div style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);border-radius:10px;padding:12px;margin-bottom:12px;">
-        <div style="font-size:.85rem;font-weight:700;color:var(--indigo3);margin-bottom:6px;">&#128179; Auto-Fund via Card</div>
-        <p style="font-size:.77rem;color:var(--text2);line-height:1.55;margin-bottom:12px;">
-          Enter an amount and pay with your card. Funds are credited to your DataBulge wallet instantly. Cancel anytime.
-        </p>
+        <div style="font-size:.87rem;font-weight:800;color:var(--indigo3);margin-bottom:5px;">&#128179; Auto-Fund via Card</div>
+        <p style="font-size:.76rem;color:var(--text2);line-height:1.55;margin-bottom:12px;">This takes the stress off you &#8212; pay with your card and your wallet is credited instantly.</p>
         <div class="field">
           <label>Amount to fund (&#8358;)</label>
           <input type="number" id="af-fund-amt" class="input" placeholder="e.g. 1000" style="width:100%;"/>
         </div>
-        <div id="af-fund-err" style="display:none;background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.3);color:#fca5a5;padding:8px 10px;border-radius:6px;font-size:.78rem;margin-bottom:10px;"></div>
-        <button class="btn btn-primary" id="af-fund-btn" onclick="launchAutoFundCard()" style="width:100%;margin:0;">
-          Pay with Card (Paystack)
-        </button>
+        <div id="af-fund-err" class="hint coral hide"></div>
+        <button class="btn btn-primary" onclick="launchAutoFundCard()" style="width:100%;margin-top:4px;">Pay with Card (Paystack)</button>
       </div>
-      <p style="font-size:.72rem;color:var(--text2);line-height:1.5;text-align:center;">Secured by Paystack. Your card details are never stored on DataBulge.</p>
+      <p style="font-size:.72rem;color:var(--text2);text-align:center;line-height:1.5;">Your card details are secured by Paystack and never stored on DataBulge.</p>
       <div class="modal-acts" style="margin-top:10px;">
         <button class="btn btn-outline" onclick="closeM('m-fund')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>!-- FUND WALLET MODAL -->
+<div class="overlay" id="m-fund">
+  <div class="modal">
+    <h2>Fund Wallet 💳</h2>
+    <p class="ms">Top up your DataBulge wallet balance.</p>
+    <div class="msec">
+      <div class="mr"><span class="ml">Current Balance</span>
+        <span id="m-fund-bal" style="font-weight:800;color:var(--indigo3)">₦0.00</span></div>
+    </div>
+    <div id="m-va-fund" class="hide">
+      <div class="va-card" id="m-va-card"></div>
+      <div class="hint indigo">💡 Transfer to the account above. Paystack automatically credits your wallet.</div>
+      <button class="btn btn-outline btn-full" onclick="closeM('m-fund')">Close</button>
+    </div>
+    <div id="m-manual-fund">
+      <div class="field">
+        <label>Amount (₦)</label>
+        <input type="number" id="m-fund-amt" placeholder="e.g. 5000" min="100"/>
+      </div>
+      <div class="field">
+        <label>Bank Transfer Reference</label>
+        <input type="text" id="m-fund-ref" placeholder="Receipt / transaction ref"/>
+      </div>
+      <div class="hint yellow">ℹ️ After transferring, enter your reference. Admin will verify and credit your wallet.</div>
+      <div class="modal-acts">
+        <button class="btn btn-outline" onclick="closeM('m-fund')">Cancel</button>
+        <button class="btn btn-primary" id="m-fund-btn" onclick="confirmFund()">Submit Request</button>
       </div>
     </div>
   </div>
@@ -3408,102 +3418,6 @@ function acceptTerms() {
   closeM('m-terms');
 }
 
-var selAutoFund = false;
-var gAutoFundAmt = 0;
-
-function toggleAutoFund() {
-  selAutoFund = !selAutoFund;
-  var tog  = document.getElementById('autofund-toggle');
-  var knob = document.getElementById('autofund-knob');
-  var fields = document.getElementById('autofund-fields');
-  if (selAutoFund) {
-    if (tog)  tog.style.background = 'var(--indigo)';
-    if (knob) knob.style.transform = 'translateX(20px)';
-    if (fields) fields.style.display = 'block';
-  } else {
-    if (tog)  tog.style.background = '#334155';
-    if (knob) knob.style.transform = 'translateX(0)';
-    if (fields) fields.style.display = 'none';
-  }
-}
-
-/* ── PAYSTACK AUTO-FUND ─────────────────────────────────────── */
-var PAYSTACK_PK = 'pk_live_d8cd1c643116f5dae4844ebf18729e630fbc1319';
-var gAutoFundPlanId = null;
-var gAutoFundPlanName = '';
-
-function _loadPaystackScript(cb) {
-  if (window.PaystackPop) { cb(); return; }
-  var s = document.createElement('script');
-  s.src = 'https://js.paystack.co/v1/inline.js';
-  s.onload = cb;
-  s.onerror = function() { toast('Could not load Paystack. Check your connection.', 'error'); };
-  document.head.appendChild(s);
-}
-
-function _doPaystackCharge(amountKobo, emailAddr, desc, onSuccess) {
-  _loadPaystackScript(function() {
-    var handler = window.PaystackPop.setup({
-      key: PAYSTACK_PK,
-      email: emailAddr,
-      amount: amountKobo,
-      currency: 'NGN',
-      metadata: { custom_fields: [{ display_name: 'Purpose', variable_name: 'purpose', value: desc }] },
-      callback: function(response) { onSuccess(response.reference); },
-      onClose: function() { toast('Payment cancelled.', 'info'); }
-    });
-    handler.openIframe();
-  });
-}
-
-async function launchAutoFundCard(amtOverride) {
-  var amt = amtOverride || (document.getElementById('af-fund-amt') ? parseFloat(document.getElementById('af-fund-amt').value) || 0 : 0);
-  if (!amt || amt < 100) { toast('Enter a valid amount (minimum ₦100).', 'error'); return; }
-  if (!me || !me.email) { toast('Please sign in.', 'error'); return; }
-  var amtKobo = Math.round(amt * 100);
-  var desc = 'DataBulge wallet top-up' + (gAutoFundPlanName ? ' for ' + gAutoFundPlanName : '');
-  _doPaystackCharge(amtKobo, me.email, desc, async function(ref) {
-    closeM('m-fund');
-    toast('Payment received! Crediting wallet…', 'success');
-    try {
-      const res = await fetch(FN + '/verifyPaystackPayment', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + (await getToken()), 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reference: ref, user_id: me.id, amount: amt, plan_id: gAutoFundPlanId || null })
-      });
-      const d = await res.json();
-      await Promise.all([loadWalBal(), loadDashboard()]);
-      if (res.ok) toast('✅ Wallet funded! Auto-paying installment…', 'success');
-      // Trigger auto-pay after funding
-      setTimeout(function() { autoActivatePlans && autoActivatePlans(); }, 1500);
-    } catch(e) { toast('Payment received. Balance will update shortly.', 'info'); }
-  });
-}
-
-function openAutoFundModal(planId, planName) {
-  gAutoFundPlanId   = planId   || null;
-  gAutoFundPlanName = planName || '';
-  // Switch fund modal to auto-fund tab
-  openFundModal();
-  setTimeout(function() { switchFundTab('af'); }, 80);
-}
-
-function switchFundTab(tab) {
-  var va = document.getElementById('fund-panel-va');
-  var af = document.getElementById('fund-panel-af');
-  var tabVA = document.getElementById('fund-tab-va');
-  var tabAF = document.getElementById('fund-tab-af');
-  if (tab === 'va') {
-    if (va) va.style.display = 'block'; if (af) af.style.display = 'none';
-    if (tabVA) { tabVA.style.borderBottomColor = 'var(--indigo)'; tabVA.style.color = 'var(--indigo3)'; }
-    if (tabAF) { tabAF.style.borderBottomColor = 'transparent'; tabAF.style.color = 'var(--text2)'; }
-  } else {
-    if (va) va.style.display = 'none'; if (af) af.style.display = 'block';
-    if (tabAF) { tabAF.style.borderBottomColor = 'var(--indigo)'; tabAF.style.color = 'var(--indigo3)'; }
-    if (tabVA) { tabVA.style.borderBottomColor = 'transparent'; tabVA.style.color = 'var(--text2)'; }
-  }
-}
-
 function toggleAutoRenew() {
   selAutoRenew = !selAutoRenew;
   var tog  = document.getElementById('autorenew-toggle');
@@ -3551,6 +3465,7 @@ function renderPayBreakdown(){
   document.getElementById('m-pay-breakdown').innerHTML=''
     + '<div class="mr"><span class="ml">Plan</span><strong>' + selPlan.data_size + ' ' + (selPlan.network||'') + '</strong></div>'
     + '<div class="mr"><span class="ml">Data valid for</span><span style="color:#fff">' + planDurationLabel(selPlan.validity_days) + '</span></div>'
+    + '<div class="mr"><span class="ml">Plan Price</span><span style="color:var(--indigo3);font-weight:800;">' + f(mkt) + '</span></div>'
     + '<div class="mr hl"><span>Price per day</span><span>' + f(dp) + '</span></div>';
   document.getElementById('m-wallet-check').innerHTML=''
     + '<div class="mr"><span class="ml">Your Wallet</span>'
@@ -3633,13 +3548,11 @@ async function confirmSub(){
   setBtnLoad('m-sub-btn',false,'Subscribe Now');
   if(!res.ok||data.error){toast('Failed: '+(data.error||data.message||'Try again'),'error');return;}
   // Optimistic: close immediately, refresh in background
-  // Launch Auto-Fund if user enabled it
+  // Fire Auto-Fund if enabled
   if (selAutoFund) {
-    var afAmt = parseFloat(document.getElementById('m-autofund-amt') ? document.getElementById('m-autofund-amt').value : 0) || 0;
-    if (afAmt > 0 && selPlan) {
-      gAutoFundPlanId   = selPlan.id;
-      gAutoFundPlanName = selPlan.data_size + ' (' + (selPlan.network||'') + ')';
-      setTimeout(function() { launchAutoFundCard(afAmt); }, 600);
+    const afAmt = parseFloat(document.getElementById('m-autofund-amt') ? document.getElementById('m-autofund-amt').value : 0) || 0;
+    if (afAmt >= 100 && selPlan) {
+      setTimeout(() => launchAutoFundCard(afAmt), 600);
     }
   }
   closeM('m-sub');
@@ -3921,6 +3834,76 @@ async function loadWalletTab(){
           </div>
           <div class="tx-amt ${t.type}">${t.type==='debit'?'–':'+'}${f(t.amount)}</div>
         </div>`).join('')}</div>`}`;
+}
+
+
+/* ── PAYSTACK AUTO-FUND ─────────────────────────────────────── */
+const PAYSTACK_PK = 'pk_live_d8cd1c643116f5dae4844ebf18729e630fbc1319';
+var selAutoFund = false;
+
+function toggleAutoFund() {
+  selAutoFund = !selAutoFund;
+  var tog   = document.getElementById('autofund-toggle');
+  var knob  = document.getElementById('autofund-knob');
+  var flds  = document.getElementById('autofund-fields');
+  if (tog)  tog.style.background   = selAutoFund ? 'var(--indigo)' : '#334155';
+  if (knob) knob.style.transform   = selAutoFund ? 'translateX(20px)' : 'translateX(0)';
+  if (flds) flds.style.display     = selAutoFund ? 'block' : 'none';
+}
+
+function _loadPaystack(cb) {
+  if (window.PaystackPop) { cb(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://js.paystack.co/v1/inline.js';
+  s.onload = cb;
+  s.onerror = () => toast('Could not load Paystack. Check your connection.','error');
+  document.head.appendChild(s);
+}
+
+async function launchAutoFundCard(amtOverride) {
+  const amt = amtOverride || (document.getElementById('af-fund-amt') ? parseFloat(document.getElementById('af-fund-amt').value) || 0 : 0);
+  if (!amt || amt < 100) { toast('Enter a valid amount (minimum \u20A6100).','error'); return; }
+  if (!me || !me.email) { toast('Please sign in.','error'); return; }
+  const amtKobo = Math.round(amt * 100);
+  _loadPaystack(function() {
+    const handler = window.PaystackPop.setup({
+      key: PAYSTACK_PK,
+      email: me.email,
+      amount: amtKobo,
+      currency: 'NGN',
+      callback: async function(response) {
+        closeM('m-fund');
+        toast('Payment received! Crediting wallet\u2026', 'success');
+        try {
+          const res = await fetch(FN + '/verifyPaystackPayment', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + (await getToken()), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reference: response.reference, user_id: me.id, amount: amt })
+          });
+          const d = await res.json();
+          await Promise.all([loadWalBal(), loadDashboard()]);
+          if (res.ok) toast('\u2705 Wallet funded!', 'success');
+          setTimeout(() => autoActivatePlans && autoActivatePlans(), 1200);
+        } catch(e) { toast('Payment received. Balance updating shortly.', 'info'); }
+      },
+      onClose: () => toast('Payment cancelled.','info')
+    });
+    handler.openIframe();
+  });
+}
+
+function switchFundTab(tab) {
+  const va = document.getElementById('fund-panel-va'), af = document.getElementById('fund-panel-af');
+  const tVA = document.getElementById('fund-tab-va'), tAF = document.getElementById('fund-tab-af');
+  if (tab === 'va') {
+    if (va) va.style.display='block'; if (af) af.style.display='none';
+    if (tVA) { tVA.style.borderBottomColor='var(--indigo)'; tVA.style.color='var(--indigo3)'; }
+    if (tAF) { tAF.style.borderBottomColor='transparent'; tAF.style.color='var(--text2)'; }
+  } else {
+    if (va) va.style.display='none'; if (af) af.style.display='block';
+    if (tAF) { tAF.style.borderBottomColor='var(--indigo)'; tAF.style.color='var(--indigo3)'; }
+    if (tVA) { tVA.style.borderBottomColor='transparent'; tVA.style.color='var(--text2)'; }
+  }
 }
 
 // ── TABS ──
