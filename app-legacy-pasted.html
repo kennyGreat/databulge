@@ -242,7 +242,71 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 </div><!-- /.auth-wrap -->
 </div><!-- /#pg-auth -->
 
-<!-- ═══ MAIN APP ═══════════════════════════════════════════════ -->
+<!-- ═══ MAIN APP ════════════════════════════════════════════════ -->
+<!-- CSS additions for richer subscription cards, cashflow, network chips -->
+<style>
+/* ── EXTRA APP STYLES ── */
+.dashboard-grid{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+.dash-card{-webkit-box-flex:1;-webkit-flex:1 1 140px;flex:1 1 140px;border:1px solid #e5e7eb;border-radius:8px;padding:12px;background:#fff;}
+.dash-card-lbl{font-size:.72rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.dash-card-val{font-size:1.25rem;font-weight:900;color:#111;}
+.dash-card-val.gn{color:#059669;}
+.dash-card-val.rd{color:#dc2626;}
+.cf-bar-wrap{background:#e5e7eb;border-radius:4px;height:8px;overflow:hidden;margin:8px 0;}
+.cf-bar-inner{background:#1877f2;height:100%;border-radius:4px;width:0%;-webkit-transition:width .5s;transition:width .5s;}
+
+/* Sub cards — rich version */
+.sub-card{border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:12px;background:#fff;}
+.sc-top{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.sc-name{font-size:.97rem;font-weight:900;color:#111;}
+.sc-meta{font-size:.74rem;color:#888;margin-top:3px;}
+.sc-badge{font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap;}
+.s-active{background:#d1fae5;color:#065f46;}
+.s-pending{background:#fef3c7;color:#92400e;}
+.s-completed{background:#e0e7ff;color:#3730a3;}
+.s-failed{background:#fee2e2;color:#991b1b;}
+.prog-wrap{margin:8px 0 4px;}
+.prog-track{background:#e5e7eb;border-radius:4px;height:6px;overflow:hidden;}
+.prog-fill{background:#1877f2;height:100%;border-radius:4px;}
+.prog-pct{font-size:.72rem;color:#888;margin-top:3px;}
+.plan-stats{display:-webkit-box;display:-webkit-flex;display:flex;gap:6px;margin:10px 0;-webkit-flex-wrap:wrap;flex-wrap:wrap;}
+.ps-item{-webkit-box-flex:1;-webkit-flex:1 1 80px;flex:1 1 80px;border:1px solid #f0f2f5;border-radius:6px;padding:8px;text-align:center;}
+.ps-label{font-size:.66rem;color:#888;margin-bottom:4px;}
+.ps-val{font-size:.88rem;font-weight:800;color:#111;}
+.ps-val.gn{color:#059669;}.ps-val.rd{color:#dc2626;}
+.sc-bot{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;-webkit-box-align:center;-webkit-align-items:center;align-items:center;gap:8px;margin-top:10px;}
+.sc-stats{display:-webkit-box;display:-webkit-flex;display:flex;gap:12px;}
+.sc-stat .sv{font-size:.85rem;font-weight:800;color:#111;}
+.sc-stat .sl{font-size:.68rem;color:#888;}
+.pay-btn-sm{padding:8px 14px;background:#059669;color:#fff;border:none;border-radius:6px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;-webkit-appearance:none;white-space:nowrap;}
+.refund-btn-sm{padding:6px 11px;background:#fff;color:#dc2626;border:1px solid #dc2626;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;-webkit-appearance:none;margin-top:6px;}
+
+/* Network chips */
+.net-chip{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:10px;}
+.nc-MTN{background:#fef9c3;color:#854d0e;}
+.nc-GLO{background:#dcfce7;color:#14532d;}
+.nc-AIRTEL{background:#fee2e2;color:#991b1b;}
+.nc-T2{background:#ede9fe;color:#4c1d95;}
+
+/* Plan filter bar */
+.filter-bar{display:-webkit-box;display:-webkit-flex;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;margin-bottom:12px;}
+.fb{background:#f3f4f6;border:none;border-radius:16px;padding:6px 14px;font-size:.78rem;font-weight:700;color:#555;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-appearance:none;}
+.fb.on{background:#1877f2;color:#fff;}
+
+/* Auto-pay toggle */
+.auto-pay-row{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;-webkit-box-align:center;-webkit-align-items:center;align-items:center;padding:10px 0;border-bottom:1px solid #f5f5f5;font-size:.83rem;margin-bottom:10px;}
+.toggle-wrap{position:relative;width:42px;height:24px;}
+.toggle-wrap input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#e5e7eb;border-radius:24px;-webkit-transition:.25s;transition:.25s;}
+.toggle-slider:before{position:absolute;content:'';height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;-webkit-transition:.25s;transition:.25s;}
+.toggle-wrap input:checked + .toggle-slider{background:#1877f2;}
+.toggle-wrap input:checked + .toggle-slider:before{-webkit-transform:translateX(18px);-ms-transform:translateX(18px);transform:translateX(18px);}
+
+/* Delivery check banner */
+#delivery-banner{display:none;position:fixed;bottom:70px;left:50%;-webkit-transform:translateX(-50%);-ms-transform:translateX(-50%);transform:translateX(-50%);z-index:9000;background:#323232;color:#fff;padding:12px 14px;border-radius:8px;font-size:.82rem;max-width:calc(100vw - 28px);width:320px;}
+#delivery-banner.on{display:block;}
+</style>
+
 <div id="pg-app" class="pg">
 
   <div class="top-bar">
@@ -255,45 +319,91 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 
   <!-- Tabs -->
   <div class="tabs">
-    <button class="tab act" id="tab-plans" data-t="plans">Buy Data</button>
+    <button class="tab act" id="tab-dash" data-t="dash">Dashboard</button>
+    <button class="tab" id="tab-plans" data-t="plans">Buy Data</button>
     <button class="tab" id="tab-subs" data-t="subs">My Plans</button>
     <button class="tab" id="tab-wallet" data-t="wallet">Account</button>
-    <button class="tab" id="tab-inbox" data-t="inbox">Messages</button>
+    <button class="tab" id="tab-inbox" data-t="inbox">Messages <span id="inbox-badge" style="display:none;background:#f43f5e;color:#fff;border-radius:10px;font-size:.62rem;font-weight:800;padding:1px 5px;vertical-align:middle;margin-left:3px;"></span></button>
   </div>
 
-  <!-- Buy Data -->
-  <div id="tc-plans" class="tab-content on">
-    <div class="card" style="margin-bottom:12px;">
-      <div class="card-title">Wallet Balance</div>
+  <!-- DASHBOARD -->
+  <div id="tc-dash" class="tab-content on">
+    <!-- Balance card -->
+    <div class="card">
+      <div class="card-title">Account Balance</div>
       <div class="card-val" id="d-bal">&#8358;0.00</div>
-      <div class="card-sub" id="d-va">Loading account details&hellip;</div>
+      <div class="card-sub" id="d-va">Loading&hellip;</div>
+      <button class="btn btn-blue" id="d-fund-btn" style="margin-top:10px;padding:9px;">+ Fund Account</button>
+    </div>
+    <!-- Cashflow stats -->
+    <div class="dashboard-grid" id="cf-grid">
+      <div class="dash-card">
+        <div class="dash-card-lbl">Today Funded</div>
+        <div class="dash-card-val gn" id="cf-in">&#8358;0.00</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-lbl">Today Spent</div>
+        <div class="dash-card-val rd" id="cf-out">&#8358;0.00</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-lbl">Completed</div>
+        <div class="dash-card-val" id="cf-done">0</div>
+      </div>
     </div>
     <div class="card" style="margin-bottom:12px;">
-      <div class="sec-title">Payment Option</div>
-      <div id="pay-toggle-wrap" style="display:flex;gap:8px;">
-        <button class="btn btn-blue" id="pay-days-7" style="margin:0;flex:1;">7 Days</button>
-        <button class="btn btn-lite" id="pay-days-28" style="margin:0;flex:1;">28 Days</button>
+      <div class="card-title">Today's spend vs funding</div>
+      <div class="cf-bar-wrap"><div class="cf-bar-inner" id="cf-bar"></div></div>
+      <div class="card-sub"><span id="cf-bar-pct">0%</span> of today's funds spent</div>
+    </div>
+    <!-- Active subscriptions -->
+    <div class="sec-title">Active Plans</div>
+    <div id="dash-subs"><div class="empty">Loading&hellip;</div></div>
+  </div>
+
+  <!-- BUY DATA -->
+  <div id="tc-plans" class="tab-content">
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-title">Account Balance</div>
+      <div class="card-val" id="plans-bal">&#8358;0.00</div>
+      <div class="card-sub">Available in your wallet</div>
+    </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-title">Payment Option</div>
+      <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:8px;">
+        <button class="btn btn-blue" id="pay-days-7" style="margin:0;-webkit-box-flex:1;-webkit-flex:1;flex:1;">7 Days +5%</button>
+        <button class="btn btn-lite" id="pay-days-28" style="margin:0;-webkit-box-flex:1;-webkit-flex:1;flex:1;">28 Days +10%</button>
       </div>
-      <div class="card-sub" style="margin-top:10px;">Daily payment updates automatically based on the payment option you choose.</div>
+      <div class="card-sub" style="margin-top:8px;">Daily payment updates based on your selection.</div>
+    </div>
+    <!-- Network filter -->
+    <div class="filter-bar" id="net-filter">
+      <button class="fb on" onclick="setNetFilter(this,'All')">All Networks</button>
+      <button class="fb" onclick="setNetFilter(this,'MTN')">MTN</button>
+      <button class="fb" onclick="setNetFilter(this,'GLO')">GLO</button>
+      <button class="fb" onclick="setNetFilter(this,'AIRTEL')">AIRTEL</button>
     </div>
     <div id="plans-list"><div class="empty">Loading plans&hellip;</div></div>
   </div>
 
-  <!-- My Plans -->
+  <!-- MY PLANS -->
   <div id="tc-subs" class="tab-content">
-    <button class="btn btn-lite" id="refresh-subs-btn" style="margin-bottom:12px;">&#8635; Refresh</button>
+    <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:8px;margin-bottom:12px;">
+      <button class="btn btn-lite" id="refresh-subs-btn" style="margin:0;-webkit-box-flex:1;-webkit-flex:1;flex:1;">&#8635; Refresh</button>
+      <button class="btn btn-blue" id="auto-pay-btn" style="margin:0;-webkit-box-flex:1;-webkit-flex:1;flex:1;">Auto-Pay Now</button>
+    </div>
     <div id="subs-list"><div class="empty">Loading&hellip;</div></div>
   </div>
 
-  <!-- Account -->
+  <!-- ACCOUNT / WALLET -->
   <div id="tc-wallet" class="tab-content">
     <div class="tab-actions">
       <button class="btn btn-blue" id="wallet-fund-btn">+ Fund Account</button>
+      <button class="btn btn-lite" id="wallet-va-btn">Account Details</button>
     </div>
     <div id="wallet-tab-content"><div class="empty">Loading account&hellip;</div></div>
   </div>
 
-  <!-- Inbox -->
+  <!-- INBOX -->
   <div id="tc-inbox" class="tab-content">
     <div class="tab-actions">
       <button class="btn btn-lite" id="mark-read-btn">Mark all read</button>
@@ -302,102 +412,80 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
     <div id="inbox-list"><div class="empty">Loading&hellip;</div></div>
   </div>
 
-  <div style="text-align:center;font-size:.73rem;color:#bbb;padding:18px 14px 22px;">&copy; Vortexedge Limited</div>
+  <div style="text-align:center;font-size:.73rem;color:#bbb;padding:18px 14px 28px;">&copy; Vortexedge Limited</div>
 </div><!-- /#pg-app -->
 
 <!-- FORGOT PASSWORD MODAL -->
 <div class="modal" id="m-forgot">
   <div class="modal-box">
-    <div class="modal-hdr">
-      <div class="modal-title">Reset Password</div>
-      <button class="modal-x" id="m-forgot-x">&#215;</button>
-    </div>
+    <div class="modal-hdr"><div class="modal-title">Reset Password</div><button class="modal-x" id="m-forgot-x">&#215;</button></div>
     <div class="modal-body">
       <p style="font-size:.82rem;color:#888;margin-bottom:12px;">Enter your email and we'll send you a reset link.</p>
       <div id="fg-err" class="err"></div>
-      <div id="fg-ok" class="ok">Reset link sent! Check your inbox and spam folder.</div>
+      <div id="fg-ok" class="ok">Reset link sent! Check your inbox.</div>
       <div class="field"><label>Email address</label><input id="fg-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
     </div>
-    <div class="modal-foot">
-      <button class="btn btn-blue" id="fg-send-btn" style="width:auto;display:inline-block;padding:10px 22px;margin:0;">Send Reset Link</button>
-    </div>
+    <div class="modal-foot"><button class="btn btn-blue" id="fg-send-btn" style="width:auto;display:inline-block;padding:10px 22px;margin:0;">Send Reset Link</button></div>
   </div>
 </div>
 
 <!-- SUBSCRIBE MODAL -->
 <div class="modal" id="m-sub">
   <div class="modal-box">
-    <div class="modal-hdr">
-      <div class="modal-title" id="m-sub-title">Subscribe</div>
-      <button class="modal-x" id="m-sub-x">&#215;</button>
-    </div>
+    <div class="modal-hdr"><div class="modal-title" id="m-sub-title">Subscribe</div><button class="modal-x" id="m-sub-x">&#215;</button></div>
     <div class="modal-body">
       <div id="m-sub-err" class="err"></div>
       <div id="m-sub-info" style="font-size:.82rem;color:#444;margin-bottom:12px;"></div>
-      <div class="field"><label>Select Payment Plan</label>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-blue" id="m-sub-days-7" type="button" style="margin:0;flex:1;">7 Days</button>
-          <button class="btn btn-lite" id="m-sub-days-28" type="button" style="margin:0;flex:1;">28 Days</button>
+      <div class="field"><label>Payment Duration</label>
+        <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:8px;">
+          <button class="btn btn-blue" id="m-sub-days-7" type="button" style="margin:0;-webkit-box-flex:1;-webkit-flex:1;flex:1;">7 Days +5%</button>
+          <button class="btn btn-lite" id="m-sub-days-28" type="button" style="margin:0;-webkit-box-flex:1;-webkit-flex:1;flex:1;">28 Days +10%</button>
+        </div>
+      </div>
+      <div class="field"><label>Auto-Renew</label>
+        <div class="auto-pay-row" style="border:none;padding:4px 0;margin:0;">
+          <span style="font-size:.82rem;color:#555;">Auto-renew when complete</span>
+          <label class="toggle-wrap"><input type="checkbox" id="m-sub-autorenew"><span class="toggle-slider"></span></label>
         </div>
       </div>
       <div class="field"><label>Phone Number for Delivery</label><input id="m-sub-phone" type="tel" placeholder="08012345678"></div>
     </div>
-    <div class="modal-foot">
-      <button class="btn btn-blue" id="m-sub-btn" style="width:auto;display:inline-block;padding:10px 22px;margin:0;">Subscribe</button>
-    </div>
+    <div class="modal-foot"><button class="btn btn-blue" id="m-sub-btn" style="width:auto;display:inline-block;padding:10px 22px;margin:0;">Subscribe Now</button></div>
   </div>
 </div>
 
 <!-- PAY INSTALLMENT MODAL -->
 <div class="modal" id="m-pay">
   <div class="modal-box">
-    <div class="modal-hdr">
-      <div class="modal-title">Pay Installment</div>
-      <button class="modal-x" id="m-pay-x">&#215;</button>
-    </div>
+    <div class="modal-hdr"><div class="modal-title">Pay Installment</div><button class="modal-x" id="m-pay-x">&#215;</button></div>
     <div class="modal-body">
       <div id="m-pay-err" class="err"></div>
       <div id="m-pay-info" style="font-size:.82rem;color:#444;margin-bottom:12px;"></div>
       <div class="field"><label>Amount to Pay (&#8358;)</label><input id="m-pay-amt" type="number" placeholder="0"></div>
     </div>
-    <div class="modal-foot">
-      <button class="btn btn-blue" id="m-pay-btn" style="width:auto;display:inline-block;padding:10px 22px;margin:0;background:#059669;">Pay from Wallet</button>
-    </div>
+    <div class="modal-foot"><button class="btn btn-blue" id="m-pay-btn" style="width:auto;display:inline-block;padding:10px 22px;margin:0;background:#059669;">Pay from Wallet</button></div>
   </div>
 </div>
 
 <!-- TERMS MODAL -->
 <div class="modal" id="m-terms">
   <div class="modal-box">
-    <div class="modal-hdr">
-      <div class="modal-title">Terms &amp; Conditions</div>
-      <button class="modal-x" id="m-terms-x">&#215;</button>
-    </div>
+    <div class="modal-hdr"><div class="modal-title">Terms &amp; Conditions</div><button class="modal-x" id="m-terms-x">&#215;</button></div>
     <div class="modal-body">
       <div class="terms-scroll">
         <div style="background:#fff2f2;border:1px solid #f5c6cb;border-radius:6px;padding:9px;color:#c0392b;font-weight:700;margin-bottom:11px;font-size:.78rem;">&#9888; Read carefully before creating your account.</div>
-        <h3>1. WHAT DATABULGE IS</h3>
-        <p>DataBulge is a technology platform by Vortexedge Limited that lets you buy mobile data bundles using a structured installment payment system. No data is delivered until full payment is completed.</p>
-        <h3>2. WHAT DATABULGE IS NOT</h3>
-        <p>DataBulge is <strong>NOT</strong> a financial institution, savings platform, investment vehicle, or thrift collector. Zero return on investment, interest, or profit-sharing of any kind.</p>
-        <h3>3. HOW IT WORKS</h3>
-        <p>Click Account, Tap +Fund Account to fund your account. Once your account reaches the full plan cost, data is automatically delivered to your registered phone number.</p>
-        <h3>4. SURCHARGE</h3>
-        <p>5% for 7-day cycles. 10% for 28-day cycles. Non-refundable once subscription is created.</p>
-        <h3>5. REFUND POLICY</h3>
-        <p>If delivery fails, your wallet is automatically refunded within 4 minutes. Successfully delivered data is non-refundable.</p>
-        <h3>6. ELIGIBILITY</h3>
-        <ul><li>Must be 18 or older</li><li>One account per person</li><li>Valid Nigerian mobile number required</li></ul>
-        <h3>7. GOVERNING LAW</h3>
-        <p>Nigerian law. Contact: support@databulge.com</p>
+        <h3>1. WHAT DATABULGE IS</h3><p>DataBulge is a technology platform by Vortexedge Limited that lets you buy mobile data bundles using a structured installment payment system. No data is delivered until full payment is completed.</p>
+        <h3>2. WHAT DATABULGE IS NOT</h3><p>DataBulge is <strong>NOT</strong> a financial institution, savings platform, investment vehicle, or thrift collector. Zero return on investment, interest, or profit-sharing of any kind.</p>
+        <h3>3. HOW IT WORKS</h3><p>Fund your account via bank transfer to your virtual account. Once your balance reaches the full plan cost, data is automatically delivered to your registered phone number.</p>
+        <h3>4. SURCHARGE</h3><p>5% for 7-day cycles. 10% for 28-day cycles. Non-refundable once subscription is created.</p>
+        <h3>5. REFUND POLICY</h3><p>If delivery fails, your wallet is automatically refunded within 4 minutes. Successfully delivered data is non-refundable.</p>
+        <h3>6. ELIGIBILITY</h3><ul><li>Must be 18 or older</li><li>One account per person</li><li>Valid Nigerian mobile number required</li></ul>
+        <h3>7. GOVERNING LAW</h3><p>Nigerian law. Contact: support@databulge.com</p>
       </div>
     </div>
-    <div class="modal-foot">
-      <button class="btn btn-blue" id="m-terms-agree" style="width:auto;display:inline-block;padding:10px 22px;margin:0;">I Agree</button>
-    </div>
+    <div class="modal-foot"><button class="btn btn-blue" id="m-terms-agree" style="width:auto;display:inline-block;padding:10px 22px;margin:0;">I Agree</button></div>
   </div>
 </div>
-
 
 <!-- FUND WALLET MODAL -->
 <div class="modal" id="m-fund">
@@ -406,7 +494,7 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
     <div class="modal-body">
       <div id="m-fund-err" class="err"></div>
       <div id="m-fund-va" class="va-box" style="display:none;"></div>
-      <div class="card-sub" style="margin-top:12px;line-height:1.6;">Transfer to the account details above. Your account balance updates automatically in less than 5 minutes after successful payment.</div>
+      <div class="card-sub" style="margin-top:10px;line-height:1.6;">Transfer to the account above. Balance updates within 5 minutes of successful transfer.</div>
     </div>
     <div class="modal-foot"></div>
   </div>
@@ -429,11 +517,8 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
       <div class="field"><label>Subject</label><input id="compose-subject" type="text" placeholder="What do you need help with?"></div>
       <div class="field"><label>Type</label>
         <select id="compose-type" style="display:block;width:100%;padding:11px 12px;border:1.5px solid #ddd;border-radius:6px;font-size:.94rem;color:#111;background:#fff;outline:none;-webkit-appearance:none;">
-          <option value="support">Support</option>
-          <option value="billing">Billing</option>
-          <option value="refund">Refund</option>
-          <option value="delivery">Delivery</option>
-          <option value="general">General</option>
+          <option value="support">Support</option><option value="billing">Billing</option>
+          <option value="refund">Refund</option><option value="delivery">Delivery</option><option value="general">General</option>
         </select>
       </div>
       <div class="field"><label>Message</label><textarea id="compose-body" class="textarea" placeholder="Write your message here"></textarea></div>
@@ -448,126 +533,104 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
     <div class="modal-hdr"><div class="modal-title" id="msg-detail-title">Message</div><button class="modal-x" id="m-msg-detail-x">&#215;</button></div>
     <div class="modal-body">
       <div id="msg-detail-body" style="font-size:.84rem;color:#444;line-height:1.7;margin-bottom:12px;"></div>
-      <div class="field"><label>Reply</label><textarea id="msg-reply-text" class="textarea" placeholder="Type your reply"></textarea></div>
+      <textarea id="msg-reply-text" class="textarea" placeholder="Type a reply..." rows="3"></textarea>
     </div>
     <div class="modal-foot"><button class="btn btn-blue" id="reply-btn" style="width:auto;display:inline-block;padding:10px 22px;margin:0;">Send Reply</button></div>
   </div>
 </div>
 
+<!-- DELIVERY CHECK BANNER -->
+<div id="delivery-banner"></div>
+
 <!-- Toast -->
 <div id="toast"></div>
 
-<!-- ═══ JAVASCRIPT ═══════════════════════════════════════════════
-     ES5 only — var, function declarations, XMLHttpRequest.
-     No const, no let, no arrow functions, no template literals,
-     no async/await, no fetch, no destructuring, no classes.
-     Works on Android 4.4 KitKat WebView (Chrome 30).
-════════════════════════════════════════════════════════════════ -->
+<!-- ═══ MAIN APP JS (ES5 + XHR only) ═══════════════════════════ -->
 <script>
 'use strict';
 
 /* ── CONFIG ─────────────────────────────────────────────────── */
 var SUPA_URL = 'https://dplxnpxxztkjczaoyetl.supabase.co';
 var ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwbHhucHh4enRramN6YW95ZXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5NzEwNTUsImV4cCI6MjA4ODU0NzA1NX0.Vhxv9UieuHwm4BBF9ziXPp8f5jeyka4m9sZbcQ_VlRQ';
-var REST     = SUPA_URL + '/rest/v1';
-var FN       = SUPA_URL + '/functions/v1';
-var AUTH     = SUPA_URL + '/auth/v1';
+var REST = SUPA_URL + '/rest/v1';
+var FN   = SUPA_URL + '/functions/v1';
+var AUTH = SUPA_URL + '/auth/v1';
 
 /* ── STATE ──────────────────────────────────────────────────── */
-var gUser       = null;   // {id, email, user_metadata}
-var gToken      = null;   // JWT access token
-var gRefresh    = null;   // refresh token
-var gExpiry     = 0;      // token expiry epoch ms
-var gBal        = 0;      // account balance
-var gProfile    = null;
-var gSelPlan    = null;   // plan being subscribed to
-var gSelSub     = null;   // subscription for pay modal
-var gRecovAT    = '';     // password recovery access token
-var gRecovRT    = '';     // password recovery refresh token
+var gUser = null;
+var gToken = null;
+var gRefresh = null;
+var gExpiry = 0;
+var gBal = 0;
+var gProfile = null;
+var gSelPlan = null;
+var gSelSub = null;
+var gRecovAT = '';
+var gRecovRT = '';
+var gPayDays = 7;
+var gModalPayDays = 7;
+var gNetFilter = 'All';
+var gAllPlans = [];
+var gCurrentMsgId = null;
+var _autoPayBusy = false;
+var _autoActivateTimer = null;
+var _pollTimer = null;
 var _toastTimer = null;
-var _pollTimer  = null;
 
-/* ── SAFE STORAGE ──────────────────────────────────────────── */
+/* ── SAFE STORAGE ───────────────────────────────────────────── */
 var _store = (function() {
   var mem = {};
   var ok = false;
   try { localStorage.setItem('__t','1'); ok = localStorage.getItem('__t') === '1'; localStorage.removeItem('__t'); } catch(e) {}
   return {
-    get: function(k)  { try { return ok ? localStorage.getItem(k)     : (mem[k]||null); } catch(e) { return mem[k]||null; } },
+    get: function(k)  { try { return ok ? localStorage.getItem(k) : (mem[k]||null); } catch(e) { return mem[k]||null; } },
     set: function(k,v){ try { if(ok) localStorage.setItem(k,v); else mem[k]=v; } catch(e) { mem[k]=v; } },
     del: function(k)  { try { if(ok) localStorage.removeItem(k); else delete mem[k]; } catch(e) { delete mem[k]; } }
   };
 })();
 
-/* ── XHR WRAPPER ────────────────────────────────────────────── */
-// Returns a plain object {ok, status, data}
-// Calls cb(err, result) when done.
+/* ── XHR ────────────────────────────────────────────────────── */
 function xhr(method, url, headers, body, cb) {
   var req = new XMLHttpRequest();
   req.open(method, url, true);
   var h;
   for (h in headers) {
-    if (Object.prototype.hasOwnProperty.call(headers, h)) {
-      req.setRequestHeader(h, headers[h]);
-    }
+    if (Object.prototype.hasOwnProperty.call(headers, h)) req.setRequestHeader(h, headers[h]);
   }
   req.onreadystatechange = function() {
     if (req.readyState !== 4) return;
     var data = null;
     try { data = JSON.parse(req.responseText); } catch(e) { data = req.responseText; }
-    if (req.status >= 200 && req.status < 300) {
-      cb(null, { ok: true, status: req.status, data: data });
-    } else {
-      cb(data || req.status, { ok: false, status: req.status, data: data });
-    }
+    if (req.status >= 200 && req.status < 300) cb(null, {ok:true, status:req.status, data:data});
+    else cb(data||req.status, {ok:false, status:req.status, data:data});
   };
   req.onerror = function() { cb('Network error', null); };
   req.ontimeout = function() { cb('Timeout', null); };
-  req.timeout = 20000;
+  req.timeout = 22000;
   req.send(body ? (typeof body === 'string' ? body : JSON.stringify(body)) : null);
 }
-
-function authHdr() {
-  return { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + (gToken || ANON_KEY), 'Content-Type': 'application/json' };
-}
-
-/* ── REST HELPERS ──────────────────────────────────────────── */
-function restGet(path, qs, cb) {
-  var url = REST + path + (qs ? '?' + qs : '');
-  xhr('GET', url, authHdr(), null, cb);
-}
-function restPost(path, body, cb) {
-  var h = authHdr();
-  h['Prefer'] = 'return=representation';
-  xhr('POST', REST + path, h, body, cb);
-}
-function restPatch(path, qs, body, cb) {
-  var h = authHdr();
-  h['Prefer'] = 'return=representation';
-  xhr('PATCH', REST + path + (qs ? '?' + qs : ''), h, body, cb);
-}
-function rpc(fn, params, cb) {
-  xhr('POST', REST + '/rpc/' + fn, authHdr(), params, cb);
-}
+function authHdr() { return {'apikey':ANON_KEY,'Authorization':'Bearer '+(gToken||ANON_KEY),'Content-Type':'application/json'}; }
+function restGet(path, qs, cb) { xhr('GET', REST+path+(qs?'?'+qs:''), authHdr(), null, cb); }
+function restPost(path, body, cb) { var h=authHdr(); h['Prefer']='return=representation'; xhr('POST',REST+path,h,body,cb); }
+function restPatch(path, qs, body, cb) { var h=authHdr(); h['Prefer']='return=representation'; xhr('PATCH',REST+path+(qs?'?'+qs:''),h,body,cb); }
+function rpc(fn, params, cb) { xhr('POST', REST+'/rpc/'+fn, authHdr(), JSON.stringify(params), cb); }
 function edgeFn(name, body, cb) {
-  var h = { 'Authorization': 'Bearer ' + (gToken || ANON_KEY), 'Content-Type': 'application/json', 'apikey': ANON_KEY };
-  xhr('POST', FN + '/' + name, h, body, cb);
+  var h={'Authorization':'Bearer '+(gToken||ANON_KEY),'Content-Type':'application/json','apikey':ANON_KEY};
+  xhr('POST', FN+'/'+name, h, JSON.stringify(body), cb);
 }
 
 /* ── TOKEN REFRESH ──────────────────────────────────────────── */
 function refreshToken(cb) {
   if (!gRefresh) { cb('No refresh token'); return; }
-  xhr('POST', AUTH + '/token?grant_type=refresh_token',
-    { 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
-    JSON.stringify({ refresh_token: gRefresh }),
+  xhr('POST', AUTH+'/token?grant_type=refresh_token',
+    {'apikey':ANON_KEY,'Content-Type':'application/json'},
+    JSON.stringify({refresh_token:gRefresh}),
     function(err, res) {
-      if (err || !res || !res.data || !res.data.access_token) { cb(err || 'Refresh failed'); return; }
-      _setSession(res.data);
-      cb(null);
+      if (err || !res || !res.data || !res.data.access_token) { cb(err||'Refresh failed'); return; }
+      _setSession(res.data); cb(null);
     }
   );
 }
-
 function ensureToken(cb) {
   var now = Date.now();
   if (gToken && gExpiry > now + 60000) { cb(null); return; }
@@ -576,1017 +639,988 @@ function ensureToken(cb) {
 
 /* ── SESSION ────────────────────────────────────────────────── */
 function _setSession(d) {
-  gToken   = d.access_token;
+  gToken = d.access_token;
   gRefresh = d.refresh_token || gRefresh;
-  gExpiry  = d.expires_at ? d.expires_at * 1000 : (Date.now() + (d.expires_in || 3600) * 1000);
+  gExpiry = d.expires_at ? d.expires_at * 1000 : (Date.now() + (d.expires_in||3600) * 1000);
   if (d.user) gUser = d.user;
-  _store.set('db_sess', JSON.stringify({ at: gToken, rt: gRefresh, ex: gExpiry, user: gUser }));
+  _store.set('db_sess', JSON.stringify({at:gToken,rt:gRefresh,ex:gExpiry,user:gUser}));
 }
-
 function _loadSession() {
   var raw = _store.get('db_sess');
   if (!raw) return false;
   try {
     var s = JSON.parse(raw);
     if (!s || !s.at) return false;
-    gToken   = s.at;
-    gRefresh = s.rt;
-    gExpiry  = s.ex || 0;
-    gUser    = s.user || null;
+    gToken=s.at; gRefresh=s.rt; gExpiry=s.ex||0; gUser=s.user||null;
     return true;
   } catch(e) { return false; }
 }
-
 function _clearSession() {
-  gToken = gRefresh = gUser = gProfile = null;
-  gExpiry = gBal = 0;
+  gToken=gRefresh=gUser=gProfile=null; gExpiry=gBal=0;
   _store.del('db_sess');
-  if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
+  if (_autoActivateTimer) { clearInterval(_autoActivateTimer); _autoActivateTimer=null; }
+  if (_pollTimer) { clearInterval(_pollTimer); _pollTimer=null; }
 }
 
 /* ── UTILS ──────────────────────────────────────────────────── */
 function $(id) { return document.getElementById(id); }
-
 function toast(msg, dur) {
-  var el = $('toast');
-  el.textContent = msg;
-  el.className = 'on';
+  var el=$('toast'); el.textContent=msg; el.className='on';
   if (_toastTimer) clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(function() { el.className = ''; }, dur || 3500);
+  _toastTimer=setTimeout(function(){ el.className=''; }, dur||3500);
 }
-
 function fmtN(n) {
-  var v = parseFloat(n) || 0;
-  return '\u20A6' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  var v=parseFloat(n)||0;
+  return '\u20A6'+v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
 }
-
-function openModal(id) { var m = $(id); if(m) m.className = 'modal on'; }
-function closeModal(id) { var m = $(id); if(m) m.className = 'modal'; }
-
+function fmtDate(iso) {
+  if (!iso) return '';
+  try { return new Date(iso).toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'}); } catch(e) { return iso.slice(0,10); }
+}
+function openModal(id) { var m=$(id); if(m) m.className='modal on'; }
+function closeModal(id) { var m=$(id); if(m) m.className='modal'; }
 function showScreen(id) {
-  var ids = ['scr-w','scr-l','scr-s','scr-r'];
-  var i;
-  for (i = 0; i < ids.length; i++) {
-    var el = $(ids[i]);
-    if (el) el.style.display = (ids[i] === id) ? 'block' : 'none';
-  }
+  var ids=['scr-w','scr-l','scr-s','scr-r'], i;
+  for(i=0;i<ids.length;i++){var el=$(ids[i]);if(el)el.style.display=(ids[i]===id?'block':'none');}
 }
-
 function showPage(id) {
-  $('pg-auth').className = 'pg' + (id === 'auth' ? ' on' : '');
-  $('pg-app').className  = 'pg' + (id === 'app'  ? ' on' : '');
+  $('pg-auth').className='pg'+(id==='auth'?' on':'');
+  $('pg-app').className='pg'+(id==='app'?' on':'');
 }
-
 function showTab(t) {
-  var tabs = ['plans','subs','wallet','inbox'];
-  var i;
-  for (i = 0; i < tabs.length; i++) {
-    var btn = $('tab-' + tabs[i]);
-    var tc  = $('tc-' + tabs[i]);
-    if (btn) btn.className = 'tab' + (tabs[i] === t ? ' act' : '');
-    if (tc)  tc.className  = 'tab-content' + (tabs[i] === t ? ' on' : '');
+  var tabs=['dash','plans','subs','wallet','inbox'], i;
+  for(i=0;i<tabs.length;i++){
+    var btn=$(tabs[i]==='dash'?'tab-dash':'tab-'+tabs[i]);
+    var tc=$('tc-'+tabs[i]);
+    if(btn) btn.className='tab'+(tabs[i]===t?' act':'');
+    if(tc)  tc.className='tab-content'+(tabs[i]===t?' on':'');
   }
+  if (t==='subs')   loadSubs();
+  if (t==='wallet') loadWalletTab();
+  if (t==='inbox')  loadInbox();
+  if (t==='dash')   { loadDashboard(); loadCashflow(); }
 }
-
-function errShow(id, msg) {
-  var el = $(id);
-  if (!el) return;
-  el.textContent = msg;
-  el.className = 'err on';
+function errShow(id,msg){var el=$(id);if(!el)return;el.textContent=msg;el.className='err on';}
+function errHide(id){var el=$(id);if(el)el.className='err';}
+function okShow(id,msg){var el=$(id);if(!el)return;if(msg)el.textContent=msg;el.className='ok on';}
+function okHide(id){var el=$(id);if(el)el.className='ok';}
+function btnLoad(id,on,label){
+  var b=$(id);if(!b)return;
+  if(on){b._lbl=b.textContent;b.innerHTML='<span class="spin"></span>'+(label||'');b.disabled=true;}
+  else{b.textContent=label||b._lbl||'Submit';b.disabled=false;}
 }
-function errHide(id) { var el = $(id); if(el) el.className = 'err'; }
-function okShow(id, msg) {
-  var el = $(id);
-  if (!el) return;
-  if (msg) el.textContent = msg;
-  el.className = 'ok on';
+function togglePw(inputId,btnId){
+  var inp=$(inputId),btn=$(btnId);if(!inp)return;
+  if(inp.type==='password'){inp.type='text';if(btn)btn.innerHTML='&#128584;';}
+  else{inp.type='password';if(btn)btn.innerHTML='&#128065;';}
 }
-function okHide(id) { var el = $(id); if(el) el.className = 'ok'; }
-
-function btnLoad(id, on, label) {
-  var b = $(id);
-  if (!b) return;
-  if (on) {
-    b._lbl = b.textContent;
-    b.innerHTML = '<span class="spin"></span>' + (label || '');
-    b.disabled = true;
-  } else {
-    b.textContent = label || b._lbl || 'Submit';
-    b.disabled = false;
-  }
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
-
-function togglePw(inputId, btnId) {
-  var inp = $(inputId), btn = $(btnId);
-  if (!inp) return;
-  if (inp.type === 'password') { inp.type = 'text'; if(btn) btn.innerHTML = '&#128584;'; }
-  else { inp.type = 'password'; if(btn) btn.innerHTML = '&#128065;'; }
+function copyText(txt) {
+  var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');toast('Copied!');}catch(e){toast('Copy failed');}
+  document.body.removeChild(ta);
 }
-
 function statusClass(s) {
-  if (s === 'active')    return 'status-active';
-  if (s === 'completed') return 'status-completed';
-  if (s === 'failed')    return 'status-failed';
-  return 'status-pending';
+  if(s==='active')return 's-active';if(s==='completed')return 's-completed';
+  if(s==='failed')return 's-failed';return 's-pending';
+}
+function netChip(net) {
+  var n=(net||'').toUpperCase();
+  var cls='net-chip nc-'+(n||'X');
+  return '<span class="'+cls+'">'+esc(net)+'</span>';
+}
+function calcPlanDaily(plan, days) {
+  var price=parseFloat(plan&&plan.selling_price)||0;
+  var total=days===28?(price*1.10):(price*1.05);
+  return {total:total, daily:days>0?(total/days):0};
 }
 
-/* ── AUTH ACTIONS ───────────────────────────────────────────── */
+/* ── AUTH ───────────────────────────────────────────────────── */
 function doLogin() {
-  var email = ($('l-email').value || '').replace(/^\s+|\s+$/g, '');
-  var pass  = $('l-pass').value || '';
+  var email=($('l-email').value||'').replace(/^\s+|\s+$/g,'');
+  var pass=$('l-pass').value||'';
   errHide('l-err');
-  if (!email || !pass) { errShow('l-err', 'Please enter your email and password.'); return; }
-  btnLoad('l-btn', true, 'Signing in\u2026');
-  xhr('POST', AUTH + '/token?grant_type=password',
-    { 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
-    JSON.stringify({ email: email, password: pass }),
-    function(err, res) {
-      btnLoad('l-btn', false, 'Log In');
-      if (err || !res || !res.ok || !res.data || !res.data.access_token) {
-        var msg = (res && res.data && (res.data.error_description || res.data.msg || res.data.message)) || 'Login failed. Check your email and password.';
-        errShow('l-err', msg);
-        return;
+  if(!email||!pass){errShow('l-err','Please enter your email and password.');return;}
+  btnLoad('l-btn',true,'Signing in\u2026');
+  xhr('POST',AUTH+'/token?grant_type=password',
+    {'apikey':ANON_KEY,'Content-Type':'application/json'},
+    JSON.stringify({email:email,password:pass}),
+    function(err,res){
+      btnLoad('l-btn',false,'Log In');
+      if(err||!res||!res.ok||!res.data||!res.data.access_token){
+        var msg=(res&&res.data&&(res.data.error_description||res.data.msg||res.data.message))||'Login failed. Check your email and password.';
+        errShow('l-err',msg);return;
       }
-      _setSession(res.data);
-      bootApp();
+      _setSession(res.data);bootApp();
     }
   );
 }
-
 function doSignup() {
-  var name  = ($('s-name').value  || '').replace(/^\s+|\s+$/g, '');
-  var phone = ($('s-phone').value || '').replace(/^\s+|\s+$/g, '');
-  var email = ($('s-email').value || '').replace(/^\s+|\s+$/g, '');
-  var pass  = $('s-pass').value || '';
-  var termsBox = $('s-terms');
-  var termsErr = $('s-terms-err');
-
-  errHide('s-err'); okHide('s-ok');
-  if (termsErr) termsErr.className = 'terms-err';
-  if (!termsBox || !termsBox.checked) { if(termsErr) termsErr.className = 'terms-err on'; return; }
-  if (!name || !email || !pass) { errShow('s-err', 'Name, email and password are required.'); return; }
-  if (pass.length < 6) { errShow('s-err', 'Password must be at least 6 characters.'); return; }
-
-  btnLoad('s-btn', true, 'Creating account\u2026');
-  xhr('POST', AUTH + '/signup',
-    { 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
-    JSON.stringify({ email: email, password: pass, data: { full_name: name, phone: phone } }),
-    function(err, res) {
-      btnLoad('s-btn', false, 'Create Account');
-      if (err || !res || !res.ok || !res.data) {
-        var msg = (res && res.data && (res.data.error_description || res.data.msg || res.data.message)) || 'Signup failed. Try again.';
-        errShow('s-err', msg);
-        return;
+  var name=($('s-name').value||'').replace(/^\s+|\s+$/g,'');
+  var phone=($('s-phone').value||'').replace(/^\s+|\s+$/g,'');
+  var email=($('s-email').value||'').replace(/^\s+|\s+$/g,'');
+  var pass=$('s-pass').value||'';
+  var termsBox=$('s-terms'),termsErr=$('s-terms-err');
+  errHide('s-err');okHide('s-ok');
+  if(termsErr)termsErr.className='terms-err';
+  if(!termsBox||!termsBox.checked){if(termsErr)termsErr.className='terms-err on';return;}
+  if(!name||!email||!pass){errShow('s-err','Name, email and password are required.');return;}
+  if(pass.length<6){errShow('s-err','Password must be at least 6 characters.');return;}
+  btnLoad('s-btn',true,'Creating account\u2026');
+  xhr('POST',AUTH+'/signup',
+    {'apikey':ANON_KEY,'Content-Type':'application/json'},
+    JSON.stringify({email:email,password:pass,data:{full_name:name,phone:phone}}),
+    function(err,res){
+      btnLoad('s-btn',false,'Create Account');
+      if(err||!res||!res.ok||!res.data){
+        var msg=(res&&res.data&&(res.data.error_description||res.data.msg||res.data.message))||'Signup failed. Try again.';
+        errShow('s-err',msg);return;
       }
-      if (res.data.access_token) {
-        // Auto-confirmed
+      if(res.data.access_token){
         _setSession(res.data);
-        // Update profile with name + phone
-        restPatch('/profiles', 'user_id=eq.' + gUser.id, { full_name: name, phone: phone }, function() {});
+        restPatch('/profiles','user_id=eq.'+gUser.id,{full_name:name,phone:phone},function(){});
+        callCreateVA(name,phone);
         bootApp();
       } else {
-        // Email confirmation required
         okShow('s-ok');
-        var sb2 = $('s-btn');
-        if (sb2) { sb2.textContent = 'Account Created \u2705'; sb2.disabled = true; }
-        setTimeout(function() { showScreen('scr-l'); }, 3200);
+        var sb2=$('s-btn');if(sb2){sb2.textContent='Account Created \u2705';sb2.disabled=true;}
+        setTimeout(function(){showScreen('scr-l');},3200);
       }
     }
   );
 }
-
 function doForgot() {
-  var email = ($('fg-email').value || '').replace(/^\s+|\s+$/g, '');
-  errHide('fg-err'); okHide('fg-ok');
-  if (!email) { errShow('fg-err', 'Please enter your email.'); return; }
-  btnLoad('fg-send-btn', true, 'Sending\u2026');
-  xhr('POST', AUTH + '/recover',
-    { 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
-    JSON.stringify({ email: email }),
-    function(err, res) {
-      btnLoad('fg-send-btn', false, 'Send Reset Link');
-      if (err || !res || !res.ok) { errShow('fg-err', 'Failed to send reset link. Try again.'); return; }
-      okShow('fg-ok', 'Reset link sent! Check your inbox and spam folder.');
+  var email=($('fg-email').value||'').replace(/^\s+|\s+$/g,'');
+  errHide('fg-err');okHide('fg-ok');
+  if(!email){errShow('fg-err','Please enter your email.');return;}
+  btnLoad('fg-send-btn',true,'Sending\u2026');
+  xhr('POST',AUTH+'/recover',{'apikey':ANON_KEY,'Content-Type':'application/json'},
+    JSON.stringify({email:email}),
+    function(err,res){
+      btnLoad('fg-send-btn',false,'Send Reset Link');
+      if(err||!res||!res.ok){errShow('fg-err','Failed to send reset link. Try again.');return;}
+      okShow('fg-ok','Reset link sent! Check your inbox and spam folder.');
     }
   );
 }
-
 function doResetPassword() {
-  var pass    = $('r-pass').value    || '';
-  var confirm = $('r-confirm').value || '';
-  errHide('r-err'); okHide('r-ok'); $('r-exp').style.display = 'none';
-  if (!pass || pass.length < 6) { errShow('r-err', 'Password must be at least 6 characters.'); return; }
-  if (pass !== confirm) { errShow('r-err', 'Passwords do not match.'); return; }
-  btnLoad('r-btn', true, 'Saving\u2026');
-  // Use the recovery access token to update password via Supabase REST
-  var h = { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + gRecovAT, 'Content-Type': 'application/json' };
-  xhr('PUT', AUTH + '/user', h, JSON.stringify({ password: pass }),
-    function(err, res) {
-      btnLoad('r-btn', false, 'Save New Password');
-      if (err || !res || !res.ok) {
-        var d = res && res.data;
-        var ec = d && (d.error || d.error_code || '');
-        if (ec === 'otp_expired' || ec === 'invalid_token' || (d && d.message && d.message.indexOf('expired') !== -1)) {
-          $('r-exp').style.display = 'block';
-        } else {
-          errShow('r-err', (d && (d.message || d.error)) || 'Update failed. Try again.');
-        }
-        return;
-      }
-      okShow('r-ok', '\u2705 Password updated! Signing you in\u2026');
-      // Sign in with new password
-      if (gRecovAT && gRecovRT) {
-        gToken = gRecovAT;
-        gRefresh = gRecovRT;
-        gRecovAT = gRecovRT = '';
-        refreshToken(function(err2) {
-          if (!err2) { bootApp(); } else { showScreen('scr-l'); }
-        });
-      } else { setTimeout(function() { showScreen('scr-l'); }, 1600); }
+  var pass=$('r-pass').value||'',confirm=$('r-confirm').value||'';
+  errHide('r-err');okHide('r-ok');$('r-exp').style.display='none';
+  if(!pass||pass.length<6){errShow('r-err','Password must be at least 6 characters.');return;}
+  if(pass!==confirm){errShow('r-err','Passwords do not match.');return;}
+  btnLoad('r-btn',true,'Saving\u2026');
+  var h={'apikey':ANON_KEY,'Authorization':'Bearer '+gRecovAT,'Content-Type':'application/json'};
+  xhr('PUT',AUTH+'/user',h,JSON.stringify({password:pass}),function(err,res){
+    btnLoad('r-btn',false,'Save New Password');
+    if(err||!res||!res.ok){
+      var d=res&&res.data,ec=d&&(d.error||d.error_code||'');
+      if(ec==='otp_expired'||ec==='invalid_token'||(d&&d.message&&d.message.indexOf('expired')!==-1)){$('r-exp').style.display='block';}
+      else{errShow('r-err',(d&&(d.message||d.error))||'Update failed. Try again.');}
+      return;
     }
-  );
+    okShow('r-ok','\u2705 Password updated! Signing you in\u2026');
+    if(gRecovAT&&gRecovRT){
+      gToken=gRecovAT;gRefresh=gRecovRT;gRecovAT=gRecovRT='';
+      refreshToken(function(err2){if(!err2)bootApp();else showScreen('scr-l');});
+    } else {setTimeout(function(){showScreen('scr-l');},1600);}
+  });
 }
 
-/* ── BOOT APP ───────────────────────────────────────────────── */
+/* ── BOOT ───────────────────────────────────────────────────── */
 function bootApp() {
-  if (!gUser) return;
-  var meta = gUser.user_metadata || {};
-  var name = meta.full_name || gUser.email.split('@')[0];
-  var initials = '';
-  var parts = name.split(' ');
-  var i;
-  for (i = 0; i < Math.min(parts.length, 2); i++) { if(parts[i]) initials += parts[i][0].toUpperCase(); }
-  $('av').textContent = initials || 'U';
-
-  showPage('app');
-  showTab('plans');
-
-  // Load everything in parallel
-  loadDashboard();
-  updatePayDaysUI();
-  loadPlans();
-  loadSubs();
-  loadWalletTab();
-  loadInbox();
-  loadAcct(name);
-  setTimeout(function(){ autoActivatePlans(); checkUndeliveredData(); }, 2500);
-
-  // Poll every 30s for balance + subs update
-  if (_pollTimer) clearInterval(_pollTimer);
-  _pollTimer = setInterval(function() {
-    loadDashboard();
-    loadWalletTab();
-    autoActivatePlans();
-  }, 30000);
+  if(!gUser)return;
+  var meta=gUser.user_metadata||{};
+  var name=meta.full_name||gUser.email.split('@')[0];
+  var initials='',parts=name.split(' '),i;
+  for(i=0;i<Math.min(parts.length,2);i++){if(parts[i])initials+=parts[i][0].toUpperCase();}
+  $('av').textContent=initials||'U';
+  showPage('app');showTab('dash');
+  loadDashboard();loadCashflow();loadPlans();
+  loadInboxBadge();
+  // Warm up edge function
+  xhr('OPTIONS',FN+'/createSubscription',{},null,function(){});
+  // Start auto-pay loop every 60s
+  if(_autoActivateTimer)clearInterval(_autoActivateTimer);
+  setTimeout(autoActivatePlans,2000);
+  _autoActivateTimer=setInterval(autoActivatePlans,60000);
+  // Poll balance every 30s
+  if(_pollTimer)clearInterval(_pollTimer);
+  _pollTimer=setInterval(function(){
+    loadDashboard();loadCashflow();loadInboxBadge();refreshBalDisplays();
+  },30000);
+  // Check for undelivered data after 6min
+  setTimeout(checkUndeliveredData,360000);
 }
-
 function doLogout() {
-  if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
-  // Sign out server-side (best effort)
-  if (gToken) {
-    xhr('POST', AUTH + '/logout',
-      { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + gToken, 'Content-Type': 'application/json' },
-      null, function() {}
-    );
-  }
-  _clearSession();
-  showPage('auth');
-  showScreen('scr-w');
-  toast('Signed out');
+  if(_autoActivateTimer){clearInterval(_autoActivateTimer);_autoActivateTimer=null;}
+  if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
+  if(gToken){xhr('POST',AUTH+'/logout',{'apikey':ANON_KEY,'Authorization':'Bearer '+gToken,'Content-Type':'application/json'},null,function(){});}
+  _clearSession();showPage('auth');showScreen('scr-w');toast('Signed out');
 }
 
-/* ── DATA LOADERS ───────────────────────────────────────────── */
-function loadDashboard() {
-  ensureToken(function(err) {
-    if (err) return;
-    restGet('/wallets', 'user_id=eq.' + gUser.id + '&select=balance,virtual_account_number,virtual_account_bank', function(e, r) {
-      if (r && r.ok && r.data && r.data[0]) {
-        var w = r.data[0];
-        gBal = parseFloat(w.balance) || 0;
-        $('d-bal').textContent = fmtN(gBal);
-        if (!gProfile) gProfile = {};
-        if (w.virtual_account_number) gProfile.virtual_account_number = w.virtual_account_number;
-        if (w.virtual_account_bank) gProfile.virtual_account_bank = w.virtual_account_bank;
-        var va = '';
-        if (w.virtual_account_number) {
-          va = 'Account: ' + w.virtual_account_number;
-          if (w.virtual_account_bank) va += ' • ' + w.virtual_account_bank;
-        } else {
-          va = 'Click Account, Tap +Fund Account to fund your account';
-        }
-        $('d-va').textContent = va;
-      } else {
-        $('d-bal').textContent = fmtN(gBal || 0);
-        $('d-va').textContent = 'Click Account, Tap +Fund Account to fund your account';
+/* ── BALANCE DISPLAY ────────────────────────────────────────── */
+function refreshBalDisplays() {
+  var v=fmtN(gBal);
+  if($('d-bal'))$('d-bal').textContent=v;
+  if($('plans-bal'))$('plans-bal').textContent=v;
+}
+
+/* ── VIRTUAL ACCOUNT ────────────────────────────────────────── */
+function getVAHtml(withHint) {
+  var acct=(gProfile&&gProfile.virtual_account_number)||'';
+  var bank=(gProfile&&(gProfile.virtual_account_bank||gProfile.virtual_bank_name))||'Wema Bank';
+  var pBank=(gProfile&&gProfile.paystack_dva_bank_name)||bank;
+  var pAcct=(gProfile&&gProfile.paystack_dva_account_number)||acct;
+  if(pAcct&&!acct){acct=pAcct;bank=pBank;}
+  var nameVal=(gProfile&&gProfile.full_name)||((gUser&&gUser.user_metadata&&gUser.user_metadata.full_name)||(gUser?gUser.email:'User'));
+  if(!acct)return '';
+  return '<div class="va-box">' +
+    '<div class="va-bank">'+esc(bank)+'</div>' +
+    '<div class="va-num">'+esc(acct)+'</div>' +
+    '<div class="va-name">DataBulge \u2022 '+esc(nameVal)+'</div>' +
+    '<div class="inline-actions"><button class="btn btn-lite" onclick="copyText(\''+esc(acct)+'\')">Copy Account Number</button></div>' +
+    (withHint?'<div class="card-sub" style="margin-top:8px;">Transfer here. Balance updates in &lt;5 minutes.</div>':'') +
+  '</div>';
+}
+function callCreateVA(oName, oPhone) {
+  ensureToken(function(err){
+    if(err)return;
+    edgeFn('paystackVirtualAccount',{},function(e,r){
+      if(r&&r.ok&&r.data){
+        if(!gProfile)gProfile={};
+        gProfile.virtual_account_number=r.data.account_number||r.data.virtual_account_number||gProfile.virtual_account_number;
+        gProfile.virtual_account_bank=r.data.bank_name||r.data.virtual_account_bank||gProfile.virtual_account_bank;
+        if(r.data.account_name)gProfile.full_name=gProfile.full_name||r.data.account_name;
+        updateVADisplay();
       }
     });
   });
 }
-
-function loadPlans() {
-  restGet('/data_plans', 'is_active=eq.true&order=sort_order&select=id,data_size,network,selling_price,daily_price,validity_days', function(e, r) {
-    var wrap = $('plans-list');
-    if (!r || !r.ok || !r.data || !r.data.length) {
-      wrap.innerHTML = '<div class="empty">No plans available right now.</div>';
-      return;
-    }
-    var html = '';
-    var plans = r.data;
-    var i;
-    for (i = 0; i < plans.length; i++) {
-      var p = plans[i];
-      html += '<div class="plan-card">' +
-        '<div class="plan-top">' +
-          '<span class="plan-size">' + esc(p.data_size) + '</span>' +
-          '<span class="plan-net">' + esc(p.network) + '</span>' +
-        '</div>' +
-        '<div class="plan-price">' + fmtN(p.selling_price) + '</div>' +
-        '<div class="plan-sub">Daily Payment: ' + fmtN(calcPlanDaily(p, gPayDays).daily) + ' • ' + gPayDays + ' days</div>' +
-        '<button class="plan-btn" data-pid="' + esc(p.id) + '" onclick="openSubModal(' + i + ')">Subscribe</button>' +
-      '</div>';
-    }
-    wrap.innerHTML = html;
-    wrap._plans = plans;
-  });
-}
-
-function loadSubs() {
-  ensureToken(function(err) {
-    if (err) return;
-    restGet('/subscriptions',
-      'user_id=eq.' + gUser.id + '&select=id,status,total_price,amount_paid,phone_number,data_plans(data_size,network,daily_price)&order=created_at.desc&limit=20',
-      function(e, r) {
-        var wrap = $('subs-list');
-        if (!r || !r.ok || !r.data || !r.data.length) {
-          wrap.innerHTML = '<div class="empty">No subscriptions yet.</div>';
-          return;
-        }
-        wrap.innerHTML = renderSubsList(r.data, false);
-      }
-    );
-  });
-}
-
-function renderSubsList(subs, compact) {
-  var html = '';
-  var i;
-  for (i = 0; i < subs.length; i++) {
-    var s = subs[i];
-    var pl = s.data_plans || {};
-    var paid = parseFloat(s.amount_paid) || 0;
-    var total = parseFloat(s.total_price) || 1;
-    var pct = Math.round((paid / total) * 100);
-    var remaining = total - paid;
-    var sc = statusClass(s.status);
-
-    html += '<div class="sub-row">' +
-      '<div class="sub-top">' +
-        '<span class="sub-name">' + esc(pl.data_size || '?') + ' &bull; ' + esc(pl.network || '?') + '</span>' +
-        '<span class="sub-status ' + sc + '">' + esc(s.status) + '</span>' +
-      '</div>' +
-      '<div class="prog-bar"><div class="prog-fill" style="width:' + pct + '%"></div></div>' +
-      '<div class="sub-meta">' + fmtN(paid) + ' paid of ' + fmtN(total) + ' &bull; ' + esc(s.phone_number || '') + '</div>';
-
-    if (!compact && (s.status === 'active' || s.status === 'pending') && remaining > 0) {
-      html += '<button class="pay-btn" onclick="openPayModal(\'' + esc(s.id) + '\',' + (parseFloat(pl.daily_price)||0) + ',' + remaining + ')">Pay Installment</button>';
-    }
-    html += '</div>';
+function updateVADisplay() {
+  var va='';
+  if(gProfile&&gProfile.virtual_account_number){
+    var acct=gProfile.virtual_account_number;
+    var bank=gProfile.virtual_account_bank||gProfile.virtual_bank_name||'Wema Bank';
+    va='Acc: '+acct+' \u2022 '+bank;
+  } else {
+    va='Click Account tab \u2192 +Fund Account to get your account number';
   }
-  return html;
+  if($('d-va'))$('d-va').textContent=va;
+}
+function openFundModal() {
+  errHide('m-fund-err');
+  var vaHtml=getVAHtml(true);
+  var vaEl=$('m-fund-va');
+  if(vaHtml){vaEl.style.display='block';vaEl.innerHTML=vaHtml;}
+  else{vaEl.style.display='none';}
+  openModal('m-fund');
+  if(!vaHtml){
+    ensureToken(function(err){
+      if(err)return;
+      edgeFn('paystackVirtualAccount',{},function(e,r){
+        if(r&&r.ok&&r.data){
+          if(!gProfile)gProfile={};
+          gProfile.virtual_account_number=r.data.account_number||r.data.virtual_account_number||gProfile.virtual_account_number;
+          gProfile.virtual_account_bank=r.data.bank_name||r.data.virtual_account_bank||gProfile.virtual_account_bank;
+          vaEl.style.display='block';
+          vaEl.innerHTML=getVAHtml(true)||'<div class="empty">Account setup unavailable. Contact support.</div>';
+          updateVADisplay();
+        }
+      });
+    });
+  }
+}
+function openVAModal() {
+  var html=getVAHtml(false);
+  $('m-va-content').innerHTML=html||'<div class="empty">Requesting your virtual account&hellip;</div>';
+  openModal('m-va');
+  if(!html){
+    ensureToken(function(err){
+      if(err)return;
+      edgeFn('paystackVirtualAccount',{},function(e,r){
+        if(r&&r.ok&&r.data){
+          if(!gProfile)gProfile={};
+          gProfile.virtual_account_number=r.data.account_number||r.data.virtual_account_number||gProfile.virtual_account_number;
+          gProfile.virtual_account_bank=r.data.bank_name||r.data.virtual_account_bank||gProfile.virtual_account_bank;
+          $('m-va-content').innerHTML=getVAHtml(false)||'<div class="empty">Account setup unavailable.</div>';
+          updateVADisplay();
+        }
+      });
+    });
+  }
 }
 
-function loadInbox() {
-  ensureToken(function(err) {
-    if (err) return;
-    restGet('/messages', 'user_id=eq.' + gUser.id + '&order=created_at.desc&limit=20', function(e1, r1) {
-      var wrap = $('inbox-list');
-      var list = (r1 && r1.ok && r1.data) ? r1.data : [];
-      if (list.length) {
-        var html = '';
-        var i;
-        for (i = 0; i < list.length; i++) {
-          var m = list[i];
-          html += '<div class="msg-row' + ((m.is_read || m.direction === 'inbound') ? '' : ' unread') + '" onclick="openMessageDetail(\'' + esc(m.id) + '\')">' +
-            '<div class="msg-sub">' + esc(m.subject || 'Message') + '</div>' +
-            '<div class="msg-body">' + esc((m.body || '').slice(0, 140)) + (((m.body || '').length > 140) ? '&hellip;' : '') + '</div>' +
-            '<div class="msg-meta">' + esc(m.type || 'general') + ' &bull; ' + esc((m.created_at || '').replace('T',' ').slice(0,16)) + '</div>' +
-          '</div>';
-        }
-        wrap.innerHTML = html;
-        return;
+/* ── DASHBOARD ──────────────────────────────────────────────── */
+function loadDashboard() {
+  ensureToken(function(err){
+    if(err)return;
+    // Load wallet + profile in parallel
+    restGet('/wallets','user_id=eq.'+gUser.id+'&select=balance,virtual_account_number,virtual_account_bank',function(e,r){
+      if(r&&r.ok&&r.data&&r.data[0]){
+        var w=r.data[0];
+        gBal=parseFloat(w.balance)||0;
+        refreshBalDisplays();
+        if(!gProfile)gProfile={};
+        if(w.virtual_account_number)gProfile.virtual_account_number=w.virtual_account_number;
+        if(w.virtual_account_bank)gProfile.virtual_account_bank=w.virtual_account_bank;
+        updateVADisplay();
       }
-      restGet('/notifications', 'user_id=eq.' + gUser.id + '&order=created_at.desc&limit=20', function(e, r) {
-        if (!r || !r.ok || !r.data || !r.data.length) {
-          wrap.innerHTML = '<div class="empty">No messages or notifications.</div>';
-          return;
+    });
+    restGet('/profiles','user_id=eq.'+gUser.id+'&select=phone,full_name,virtual_account_number,virtual_account_bank,paystack_dva_account_number,paystack_dva_bank_name',function(e,r){
+      if(r&&r.ok&&r.data&&r.data[0]){
+        if(!gProfile)gProfile={};
+        var p=r.data[0];
+        gProfile=Object.assign(gProfile,p);
+        // Paystack fallback
+        if(!gProfile.virtual_account_number&&gProfile.paystack_dva_account_number){
+          gProfile.virtual_account_number=gProfile.paystack_dva_account_number;
+          gProfile.virtual_account_bank=gProfile.paystack_dva_bank_name||'Wema Bank';
         }
-        var html = '';
-        var i;
-        for (i = 0; i < r.data.length; i++) {
-          var n = r.data[i];
-          html += '<div class="msg-row' + (n.is_read ? '' : ' unread') + '" onclick="openNotificationDetail(' + i + ')">' +
-            '<div class="msg-sub">Notification</div>' +
-            '<div class="msg-body">' + esc(n.message || '') + '</div>' +
-            '<div class="msg-meta">' + esc((n.created_at || '').replace('T',' ').slice(0,16)) + '</div>' +
-          '</div>';
-        }
-        wrap.innerHTML = html;
-        wrap._notifications = r.data;
-        restPatch('/notifications', 'user_id=eq.' + gUser.id + '&is_read=eq.false', { is_read: true }, function() {});
+        updateVADisplay();
+      }
+    });
+    // Active subs for dashboard
+    restGet('/subscriptions','user_id=eq.'+gUser.id+'&status=in.(pending,active)&select=id,status,total_price,amount_paid,phone_number,created_at,data_plans(id,data_size,network,daily_price)&order=created_at.desc&limit=5',function(e,r){
+      renderSubCards(r&&r.ok&&r.data?r.data:[],'dash-subs');
+    });
+  });
+}
+
+/* ── CASHFLOW ───────────────────────────────────────────────── */
+function loadCashflow() {
+  ensureToken(function(err){
+    if(err)return;
+    var today=new Date();today.setHours(0,0,0,0);
+    var todayISO=today.toISOString();
+    var txQ='user_id=eq.'+gUser.id+'&created_at=gte.'+encodeURIComponent(todayISO)+'&select=type,amount';
+    var subQ='user_id=eq.'+gUser.id+'&select=status';
+    restGet('/wallet_transactions',txQ,function(e1,r1){
+      var list=(r1&&r1.ok&&r1.data)?r1.data:[];
+      var todayIn=0,todayOut=0,i;
+      for(i=0;i<list.length;i++){
+        var t=list[i];
+        if(t.type==='credit'||t.type==='refund')todayIn+=parseFloat(t.amount)||0;
+        else if(t.type==='debit')todayOut+=parseFloat(t.amount)||0;
+      }
+      var outPct=todayIn>0?Math.min(100,(todayOut/todayIn)*100):(todayOut>0?100:0);
+      if($('cf-in'))$('cf-in').textContent=todayIn>0?fmtN(todayIn):'\u20A60.00';
+      if($('cf-out'))$('cf-out').textContent=todayOut>0?fmtN(todayOut):'\u20A60.00';
+      var bar=$('cf-bar');
+      if(bar){setTimeout(function(){bar.style.width=outPct.toFixed(1)+'%';},100);}
+      if($('cf-bar-pct'))$('cf-bar-pct').textContent=outPct.toFixed(0)+'%';
+      restGet('/subscriptions',subQ,function(e2,r2){
+        var subs=(r2&&r2.ok&&r2.data)?r2.data:[];
+        var done=0,j;for(j=0;j<subs.length;j++){if(subs[j].status==='completed')done++;}
+        if($('cf-done'))$('cf-done').textContent=done;
       });
     });
   });
 }
 
-function loadAcct(name) {
-  var wrap = $('acct-rows');
-  var baseHtml = '<div class="row-line"><span class="row-label">Name</span><span class="row-val">' + esc(name) + '</span></div>' +
-    '<div class="row-line"><span class="row-label">Email</span><span class="row-val">' + esc(gUser.email) + '</span></div>';
-  if (wrap) wrap.innerHTML = baseHtml;
-  // Load phone from profile
-  ensureToken(function(err) {
-    if (err) return;
-    restGet('/profiles', 'user_id=eq.' + gUser.id + '&select=phone,full_name,virtual_account_number,virtual_account_bank', function(e, r) {
-      if (r && r.ok && r.data && r.data[0]) {
-        var p = r.data[0]; gProfile = p;
-        var extra = '';
-        if (p.phone) extra += '<div class="row-line"><span class="row-label">Phone</span><span class="row-val">' + esc(p.phone) + '</span></div>';
-        if (p.virtual_account_number) extra += '<div class="row-line"><span class="row-label">Account Number</span><span class="row-val">' + esc(p.virtual_account_number) + '</span></div>';
-        if (p.virtual_account_bank)   extra += '<div class="row-line"><span class="row-label">Bank</span><span class="row-val">' + esc(p.virtual_account_bank) + '</span></div>';
-        if (wrap) wrap.innerHTML = baseHtml + extra;
-      }
+/* ── PLANS ──────────────────────────────────────────────────── */
+function setNetFilter(btn, net) {
+  gNetFilter=net;
+  var btns=document.querySelectorAll('#net-filter .fb'), i;
+  for(i=0;i<btns.length;i++)btns[i].className='fb';
+  btn.className='fb on';
+  renderPlans();
+}
+function loadPlans() {
+  restGet('/data_plans','is_active=eq.true&order=sort_order&select=id,data_size,network,selling_price,daily_price,validity_days',function(e,r){
+    gAllPlans=(r&&r.ok&&r.data)?r.data:[];
+    renderPlans();
+  });
+}
+function renderPlans() {
+  var wrap=$('plans-list');
+  var filtered=[];
+  var i;
+  for(i=0;i<gAllPlans.length;i++){
+    var p=gAllPlans[i];
+    if(gNetFilter==='All'||((p.network||'').toUpperCase()===gNetFilter))filtered.push(p);
+  }
+  if(!filtered.length){wrap.innerHTML='<div class="empty">No plans available right now.</div>';return;}
+  var html='';
+  for(i=0;i<filtered.length;i++){
+    var pl=filtered[i];
+    var calc=calcPlanDaily(pl,gPayDays);
+    html+='<div class="plan-card">'+
+      '<div class="plan-top">'+
+        '<span class="plan-size">'+esc(pl.data_size)+'</span>'+
+        netChip(pl.network)+
+      '</div>'+
+      '<div class="plan-price">'+fmtN(pl.selling_price)+'</div>'+
+      '<div class="plan-sub">Daily: '+fmtN(calc.daily)+' &bull; '+gPayDays+' days &bull; validity: '+(pl.validity_days||30)+' days</div>'+
+      '<button class="plan-btn" onclick="openSubModal('+i+')">Subscribe</button>'+
+    '</div>';
+  }
+  wrap.innerHTML=html;
+  wrap._plans=filtered;
+}
+function updatePayDaysUI() {
+  if($('pay-days-7'))$('pay-days-7').className='btn '+(gPayDays===7?'btn-blue':'btn-lite');
+  if($('pay-days-28'))$('pay-days-28').className='btn '+(gPayDays===28?'btn-blue':'btn-lite');
+}
+function setPayDays(days){gPayDays=(days===28?28:7);updatePayDaysUI();renderPlans();}
+
+/* ── SUBSCRIPTIONS ──────────────────────────────────────────── */
+function loadSubs() {
+  ensureToken(function(err){
+    if(err)return;
+    var wrap=$('subs-list');
+    wrap.innerHTML='<div class="empty">Loading\u2026</div>';
+    restGet('/subscriptions','user_id=eq.'+gUser.id+'&select=id,status,total_price,amount_paid,phone_number,created_at,data_plans(id,data_size,network,daily_price)&order=created_at.desc&limit=30',function(e,r){
+      renderSubCards(r&&r.ok&&r.data?r.data:[],'subs-list');
     });
   });
 }
-
-/* ── SUBSCRIBE ──────────────────────────────────────────────── */
-
-function calcPlanDaily(plan, days) {
-  var price = parseFloat(plan && plan.selling_price) || 0;
-  var total = days === 28 ? (price * 1.10) : (price * 1.05);
-  return { total: total, daily: days > 0 ? (total / days) : 0 };
+function renderSubCards(data, cid) {
+  var el=$(cid); if(!el)return;
+  if(!data||!data.length){
+    el.innerHTML='<div class="empty">'+(cid==='dash-subs'?'No active plans. Buy data from the Plans tab.':'No subscriptions yet.')+'</div>';
+    return;
+  }
+  var html='',i;
+  for(i=0;i<data.length;i++){
+    var s=data[i];
+    var pl=s.data_plans||{};
+    var phone=s.phone_number||s.phone||'';
+    var paid=parseFloat(s.amount_paid)||0;
+    var total=parseFloat(s.total_price)||1;
+    var outstanding=Math.max(0,total-paid);
+    var pct=Math.min(100,(paid/total)*100);
+    var daily=parseFloat(pl.daily_price)||0;
+    var installsDone=daily>0?Math.floor(paid/daily):0;
+    var installsLeft=daily>0?Math.ceil(outstanding/daily):0;
+    var canPay=(s.status==='active'||s.status==='pending')&&outstanding>0;
+    var sc=statusClass(s.status);
+    html+='<div class="sub-card">'+
+      '<div class="sc-top">'+
+        '<div>'+
+          '<div class="sc-name">'+esc(pl.data_size||'Data Plan')+' '+netChip(pl.network)+'</div>'+
+          '<div class="sc-meta">'+(phone?'&#128241; '+esc(phone)+' &bull; ':'')+fmtDate(s.created_at)+'</div>'+
+        '</div>'+
+        '<span class="sc-badge '+sc+'">'+esc(s.status)+'</span>'+
+      '</div>'+
+      '<div class="prog-wrap">'+
+        '<div class="prog-track"><div class="prog-fill" style="width:'+pct.toFixed(1)+'%"></div></div>'+
+        '<div class="prog-pct">'+pct.toFixed(0)+'% complete</div>'+
+      '</div>'+
+      '<div class="plan-stats">'+
+        '<div class="ps-item"><div class="ps-label">Total Paid</div><div class="ps-val gn">'+fmtN(paid)+'</div></div>'+
+        '<div class="ps-item"><div class="ps-label">Outstanding</div><div class="ps-val '+(outstanding>0?'rd':'gn')+'">'+
+          (outstanding>0?fmtN(outstanding):'Cleared \u2713')+'</div></div>'+
+        '<div class="ps-item"><div class="ps-label">'+(s.status==='completed'?'Delivered':'Payments Left')+'</div>'+
+          '<div class="ps-val">'+(s.status==='completed'?'\u2705 Done':(installsLeft>0?installsLeft+' left':'&mdash;'))+'</div></div>'+
+      '</div>'+
+      '<div class="sc-bot">'+
+        '<div class="sc-stats">'+
+          (daily?'<div class="sc-stat"><div class="sv">'+fmtN(daily)+'</div><div class="sl">Per payment</div></div>':'')+
+          (installsDone?'<div class="sc-stat"><div class="sv">'+installsDone+'</div><div class="sl">Paid so far</div></div>':'')+
+        '</div>'+
+        '<div style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;gap:4px;">'+
+          (canPay?'<button class="pay-btn-sm" onclick="openPayModal(\''+esc(s.id)+'\','+daily+','+outstanding+',\''+esc(phone)+'\',\''+esc(pl.network||'')+'\',\''+esc(pl.data_size||'')+'\')">Pay Now</button>':'')+ 
+          (s.status==='completed'?'<button class="refund-btn-sm" onclick="openRefundModal(\''+esc(s.id)+'\',\''+esc((pl.data_size||'')+(pl.network?' '+pl.network:''))+'\',\''+esc(phone)+'\','+paid+')">Report Issue</button>':'')+ 
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }
+  el.innerHTML=html;
 }
 
-function updatePayDaysUI() {
-  if ($('pay-days-7')) $('pay-days-7').className = 'btn ' + (gPayDays === 7 ? 'btn-blue' : 'btn-lite');
-  if ($('pay-days-28')) $('pay-days-28').className = 'btn ' + (gPayDays === 28 ? 'btn-blue' : 'btn-lite');
+/* ── SUBSCRIBE MODAL ────────────────────────────────────────── */
+function updateSubDaysUI(){
+  if($('m-sub-days-7'))$('m-sub-days-7').className='btn '+(gModalPayDays===7?'btn-blue':'btn-lite');
+  if($('m-sub-days-28'))$('m-sub-days-28').className='btn '+(gModalPayDays===28?'btn-blue':'btn-lite');
 }
-
-function setPayDays(days) {
-  gPayDays = days === 28 ? 28 : 7;
-  updatePayDaysUI();
-  loadPlans();
+function updateSubInfo(){
+  if(!gSelPlan)return;
+  var calc=calcPlanDaily(gSelPlan,gModalPayDays);
+  $('m-sub-info').innerHTML=
+    '<div class="row-line"><span class="row-label">Plan Price</span><span class="row-val">'+fmtN(gSelPlan.selling_price)+'</span></div>'+
+    '<div class="row-line"><span class="row-label">Duration</span><span class="row-val">'+gModalPayDays+' days</span></div>'+
+    '<div class="row-line"><span class="row-label">Daily Payment</span><span class="row-val">'+fmtN(calc.daily)+'</span></div>'+
+    '<div class="row-line"><span class="row-label">Total Cost</span><span class="row-val">'+fmtN(calc.total)+'</span></div>'+
+    '<div class="row-line"><span class="row-label">Account Balance</span><span class="row-val '+(gBal>=calc.daily?'':'rd')+'">'+fmtN(gBal)+'</span></div>';
 }
-
-function updateSubDaysUI() {
-  if ($('m-sub-days-7')) $('m-sub-days-7').className = 'btn ' + (gModalPayDays === 7 ? 'btn-blue' : 'btn-lite');
-  if ($('m-sub-days-28')) $('m-sub-days-28').className = 'btn ' + (gModalPayDays === 28 ? 'btn-blue' : 'btn-lite');
-}
-
-function updateSubInfo() {
-  if (!gSelPlan) return;
-  var calc = calcPlanDaily(gSelPlan, gModalPayDays);
-  $('m-sub-info').innerHTML =
-    '<div class="row-line"><span class="row-label">Plan Price</span><span class="row-val">' + fmtN(gSelPlan.selling_price) + '</span></div>' +
-    '<div class="row-line"><span class="row-label">Payment Option</span><span class="row-val">' + gModalPayDays + ' days</span></div>' +
-    '<div class="row-line"><span class="row-label">Daily Payment</span><span class="row-val">' + fmtN(calc.daily) + '</span></div>' +
-    '<div class="row-line"><span class="row-label">Validity</span><span class="row-val">' + (gSelPlan.validity_days || 30) + ' days</span></div>';
-}
-
-function openSubModal(planIdx) {
-  var plansWrap = $('plans-list');
-  if (!plansWrap || !plansWrap._plans) return;
-  gSelPlan = plansWrap._plans[planIdx];
-  if (!gSelPlan) return;
-  $('m-sub-title').textContent = 'Subscribe: ' + gSelPlan.data_size + ' (' + gSelPlan.network + ')';
-  $('m-sub-info').innerHTML =
-    '<div class="row-line"><span class="row-label">Price</span><span class="row-val">' + fmtN(gSelPlan.selling_price) + '</span></div>' +
-    '<div class="row-line"><span class="row-label">Daily payment</span><span class="row-val">' + fmtN(gSelPlan.daily_price) + '</span></div>' +
-    '<div class="row-line"><span class="row-label">Account Balance</span><span class="row-val">' + fmtN(gBal) + '</span></div>';
+function openSubModal(planIdx){
+  var plansWrap=$('plans-list');
+  if(!plansWrap||!plansWrap._plans)return;
+  gSelPlan=plansWrap._plans[planIdx];
+  if(!gSelPlan)return;
+  gModalPayDays=gPayDays;
+  $('m-sub-title').textContent='Subscribe: '+gSelPlan.data_size+' ('+gSelPlan.network+')';
+  updateSubDaysUI();updateSubInfo();
   errHide('m-sub-err');
-  // Pre-fill phone from profile
-  var meta = gUser.user_metadata || {};
-  $('m-sub-phone').value = meta.phone || '';
+  var meta=gUser.user_metadata||{};
+  $('m-sub-phone').value=(gProfile&&gProfile.phone)||meta.phone||'';
+  if($('m-sub-autorenew'))$('m-sub-autorenew').checked=false;
   openModal('m-sub');
 }
-
-function confirmSub() {
-  if (!gSelPlan) return;
-  var phone = ($('m-sub-phone').value || '').replace(/^\s+|\s+$/g, '');
-  var days  = gModalPayDays || 7;
+function confirmSub(){
+  if(!gSelPlan)return;
+  var phone=($('m-sub-phone').value||'').replace(/^\s+|\s+$/g,'');
+  var days=gModalPayDays||7;
+  var autoRenew=$('m-sub-autorenew')&&$('m-sub-autorenew').checked;
   errHide('m-sub-err');
-  if (!phone) { errShow('m-sub-err', 'Enter your phone number for data delivery.'); return; }
-  btnLoad('m-sub-btn', true, 'Subscribing\u2026');
-  ensureToken(function(err) {
-    if (err) { btnLoad('m-sub-btn', false, 'Subscribe'); errShow('m-sub-err', 'Session error. Please log out and back in.'); return; }
-    var h = { 'Authorization': 'Bearer ' + gToken, 'Content-Type': 'application/json', 'apikey': ANON_KEY };
-    var body = JSON.stringify({ user_id: gUser.id, plan_id: gSelPlan.id, phone_number: phone, payment_days: days, auto_renew: false });
-    xhr('POST', FN + '/createSubscription', h, body, function(e, r) {
-      btnLoad('m-sub-btn', false, 'Subscribe');
-      if (e || !r || !r.ok || (r.data && r.data.error)) {
-        var msg = (r && r.data && (r.data.error || r.data.message)) || 'Failed to subscribe. Try again.';
-        errShow('m-sub-err', msg);
-        return;
+  if(!phone){errShow('m-sub-err','Enter your phone number for data delivery.');return;}
+  btnLoad('m-sub-btn',true,'Subscribing\u2026');
+  ensureToken(function(err){
+    if(err){btnLoad('m-sub-btn',false,'Subscribe Now');errShow('m-sub-err','Session error. Please sign out and back in.');return;}
+    var h={'Authorization':'Bearer '+gToken,'Content-Type':'application/json','apikey':ANON_KEY};
+    var body=JSON.stringify({user_id:gUser.id,plan_id:gSelPlan.id,phone_number:phone,payment_days:days,auto_renew:autoRenew});
+    xhr('POST',FN+'/createSubscription',h,body,function(e,r){
+      btnLoad('m-sub-btn',false,'Subscribe Now');
+      if(e||!r||!r.ok||(r.data&&r.data.error)){
+        var msg=(r&&r.data&&(r.data.error||r.data.message))||'Failed to subscribe. Try again.';
+        errShow('m-sub-err',msg);return;
       }
       closeModal('m-sub');
-      toast('\u2705 Subscribed to ' + gSelPlan.data_size + '! Delivering now.');
-      setTimeout(function() { loadDashboard(); loadSubs(); }, 1500);
+      toast('\u2705 Subscribed to '+gSelPlan.data_size+'! Data delivery starts when fully paid.');
+      if(r.data&&(r.data.subscription_id||r.data.id)){
+        rpc('trigger_delivery',{p_subscription_id:r.data.subscription_id||r.data.id,p_user_id:gUser.id},function(){});
+      }
+      setTimeout(function(){loadDashboard();loadCashflow();},1500);
     });
   });
 }
 
 /* ── PAY INSTALLMENT ────────────────────────────────────────── */
-function openPayModal(subId, dailyAmt, remaining) {
-  gSelSub = { id: subId, daily: dailyAmt, remaining: remaining };
-  var sugAmt = Math.min(dailyAmt, remaining, gBal);
-  var ok = gBal >= dailyAmt;
-  $('m-pay-info').innerHTML =
-    '<div class="row-line"><span class="row-label">Amount per payment</span><span class="row-val">' + fmtN(dailyAmt) + '</span></div>' +
-    '<div class="row-line"><span class="row-label">Balance remaining</span><span class="row-val">' + fmtN(remaining) + '</span></div>' +
-    '<div class="row-line"><span class="row-label">Account Balance</span><span class="row-val" style="color:' + (ok ? '#059669' : '#dc2626') + '">' + fmtN(gBal) + '</span></div>';
-  $('m-pay-amt').value = sugAmt > 0 ? sugAmt : '';
+function openPayModal(subId,dailyAmt,remaining,phone,network,planName){
+  gSelSub={id:subId,daily:dailyAmt,remaining:remaining};
+  var sugAmt=Math.min(dailyAmt,remaining,gBal);
+  var ok=gBal>=dailyAmt;
+  $('m-pay-info').innerHTML=
+    (planName?'<div class="row-line"><span class="row-label">Plan</span><span class="row-val">'+esc(planName)+(network?' '+netChip(network):'')+'</span></div>':'')+
+    (phone?'<div class="row-line"><span class="row-label">Phone</span><span class="row-val">'+esc(phone)+'</span></div>':'')+
+    '<div class="row-line"><span class="row-label">Per payment</span><span class="row-val">'+fmtN(dailyAmt)+'</span></div>'+
+    '<div class="row-line"><span class="row-label">Outstanding</span><span class="row-val">'+fmtN(remaining)+'</span></div>'+
+    '<div class="row-line"><span class="row-label">Account Balance</span><span class="row-val" style="color:'+(ok?'#059669':'#dc2626')+'">'+fmtN(gBal)+'</span></div>';
+  $('m-pay-amt').value=sugAmt>0?sugAmt:'';
   errHide('m-pay-err');
   openModal('m-pay');
 }
-
-function confirmPay() {
-  var amt = parseFloat($('m-pay-amt').value);
+function confirmPay(){
+  var amt=parseFloat($('m-pay-amt').value);
   errHide('m-pay-err');
-  if (!amt || amt <= 0) { errShow('m-pay-err', 'Enter a valid amount.'); return; }
-  if (amt > gBal)       { errShow('m-pay-err', 'Insufficient account balance.'); return; }
-  if (!gSelSub)         { return; }
-  btnLoad('m-pay-btn', true, 'Paying\u2026');
-  ensureToken(function(err) {
-    if (err) { btnLoad('m-pay-btn', false, 'Pay from Wallet'); errShow('m-pay-err', 'Session error.'); return; }
-    rpc('pay_installment', JSON.stringify({ p_user_id: gUser.id, p_subscription_id: gSelSub.id, p_amount: amt, p_reference: null }),
-      function(e, r) {
-        btnLoad('m-pay-btn', false, 'Pay from Wallet');
-        if (e || !r || !r.ok || (r.data && !r.data.success)) {
-          var msg = (r && r.data && (r.data.error || r.data.message)) || 'Payment failed. Try again.';
-          errShow('m-pay-err', msg);
-          return;
-        }
-        var d = r.data || {};
-        gBal = parseFloat(d.wallet_balance) || gBal - amt;
-        closeModal('m-pay');
-        toast(fmtN(amt) + ' paid! Wallet: ' + fmtN(gBal));
-        if (d.status === 'completed') toast('\uD83C\uDF89 Plan fully paid! Data being delivered.');
-        setTimeout(function() { loadDashboard(); loadSubs(); }, 1200);
+  if(!amt||amt<=0){errShow('m-pay-err','Enter a valid amount.');return;}
+  if(amt>gBal){errShow('m-pay-err','Insufficient account balance.');return;}
+  if(!gSelSub)return;
+  btnLoad('m-pay-btn',true,'Paying\u2026');
+  ensureToken(function(err){
+    if(err){btnLoad('m-pay-btn',false,'Pay from Wallet');errShow('m-pay-err','Session error.');return;}
+    rpc('pay_installment',{p_user_id:gUser.id,p_subscription_id:gSelSub.id,p_amount:amt,p_reference:null},function(e,r){
+      btnLoad('m-pay-btn',false,'Pay from Wallet');
+      if(e||!r||!r.ok||(r.data&&!r.data.success)){
+        var msg=(r&&r.data&&(r.data.error||r.data.message))||'Payment failed. Try again.';
+        errShow('m-pay-err',msg);return;
       }
-    );
-  });
-}
-
-
-
-/* ── WALLET / MESSAGES / EXTRA FEATURES ───────────────────── */
-var gCurrentMsgId = null;
-var _autoPayBusy = false;
-var gPayDays = 7;
-var gModalPayDays = 7;
-
-function copyText(txt) {
-  var ta = document.createElement('textarea');
-  ta.value = txt;
-  document.body.appendChild(ta);
-  ta.select();
-  try { document.execCommand('copy'); toast('Copied'); } catch(e) { toast('Copy failed'); }
-  document.body.removeChild(ta);
-}
-
-function openFundModal() {
-  errHide('m-fund-err');
-  var vaHtml = getVAHtml(true);
-  $('m-fund-va').style.display = 'block';
-  $('m-fund-va').innerHTML = vaHtml || '<div class="empty">No account details found yet. Please wait a moment for account generation or contact support.</div>';
-  openModal('m-fund');
-  if (vaHtml) return;
-  ensureToken(function(err) {
-    if (err) return;
-    edgeFn('paystackVirtualAccount', {}, function(e, r) {
-      if (r && r.ok && r.data) {
-        if (!gProfile) gProfile = {};
-        gProfile.virtual_account_number = r.data.account_number || r.data.virtual_account_number || gProfile.virtual_account_number;
-        gProfile.virtual_account_bank = r.data.bank_name || r.data.virtual_account_bank || gProfile.virtual_account_bank;
-        $('m-fund-va').innerHTML = getVAHtml(true) || '<div class="empty">Account setup is not available right now.</div>';
-        loadDashboard();
-        loadWalletTab();
-        loadAcct((gUser.user_metadata && gUser.user_metadata.full_name) || (gUser.email || 'User'));
+      var d=r.data||{};
+      gBal=parseFloat(d.wallet_balance)||Math.max(0,gBal-amt);
+      refreshBalDisplays();
+      closeModal('m-pay');
+      toast(fmtN(amt)+' paid! Balance: '+fmtN(gBal));
+      if(d.status==='completed'){
+        toast('\uD83C\uDF89 Plan fully paid! Delivering data now\u2026');
+        rpc('trigger_delivery',{p_subscription_id:gSelSub.id,p_user_id:gUser.id},function(){});
       }
+      setTimeout(function(){loadDashboard();loadCashflow();},1200);
     });
   });
 }
 
-function getVAHtml(withHint) {
-  var acct = (gProfile && gProfile.virtual_account_number) || '';
-  var bank = (gProfile && gProfile.virtual_account_bank) || '';
-  var name = (gProfile && gProfile.full_name) || ((gUser && gUser.user_metadata && gUser.user_metadata.full_name) || (gUser ? gUser.email : 'User'));
-  if (!acct) return '';
-  return '<div class="va-box">' +
-    '<div class="va-bank">' + esc(bank || 'Virtual Account') + '</div>' +
-    '<div class="va-num">' + esc(acct) + '</div>' +
-    '<div class="va-name">DataBulge • ' + esc(name) + '</div>' +
-    '<div class="inline-actions"><button class="btn btn-lite" onclick="copyText(\'' + esc(acct) + '\')">Copy Account Number</button></div>' +
-    (withHint ? '<div class="card-sub" style="margin-top:8px;">Transfer here. Your account balance updates automatically in less than 5 minutes.</div>' : '') +
-  '</div>';
-}
-
-function confirmFund() {
-  closeModal('m-fund');
-}
-
-function openVAModal() {
-  var html = getVAHtml(false);
-  if (html) {
-    $('m-va-content').innerHTML = html;
-    openModal('m-va');
-    return;
-  }
-  $('m-va-content').innerHTML = '<div class="empty">No account details found yet. If your backend supports auto-creation, it will be requested now.</div>';
-  openModal('m-va');
-  ensureToken(function(err) {
-    if (err) return;
-    edgeFn('paystackVirtualAccount', {}, function(e, r) {
-      if (r && r.ok && r.data) {
-        if (!gProfile) gProfile = {};
-        gProfile.virtual_account_number = r.data.account_number || r.data.virtual_account_number || gProfile.virtual_account_number;
-        gProfile.virtual_account_bank = r.data.bank_name || r.data.virtual_account_bank || gProfile.virtual_account_bank;
-        $('m-va-content').innerHTML = getVAHtml(false) || '<div class="empty">Account setup is not available right now.</div>';
-        loadAcct((gUser.user_metadata && gUser.user_metadata.full_name) || (gUser.email || 'User'));
-      }
-    });
-  });
-}
-
-function loadWalletTab() {
-  ensureToken(function(err) {
-    if (err) return;
-    var wrap = $('wallet-tab-content');
-    if (!wrap) return;
-    wrap.innerHTML = '<div class="empty">Loading wallet…</div>';
-
-    function renderWallet(list) {
-      var html = '';
-      var vaHtml = getVAHtml(false);
-      html += '<div class="card"><div class="card-title">Account Balance</div><div class="card-val">' + fmtN(gBal) + '</div><div class="card-sub">Your balance updates after successful funding or installment payment.</div></div>';
-      if (vaHtml) html += vaHtml;
-      if ($('acct-rows') && $('acct-rows').innerHTML) html += '<div class="card"><div class="sec-title">Profile</div>' + $('acct-rows').innerHTML + '</div>';
-      if (!list.length) {
-        html += '<div class="empty">No wallet transactions yet.</div>';
-      } else {
-        var i, t, type, icon, desc;
-        for (i = 0; i < list.length; i++) {
-          t = list[i];
-          type = t.type || 'credit';
-          icon = type === 'debit' ? '−' : (type === 'refund' ? '↺' : '+');
-          desc = (t.metadata && t.metadata.description) ? t.metadata.description : type;
-          html += '<div class="tx-row">' +
-            '<div class="tx-left"><div class="tx-ico">' + icon + '</div><div><div class="tx-desc">' + esc(desc) + '</div><div class="tx-date">' + esc((t.created_at || '').replace('T',' ').slice(0,16)) + (t.reference ? ' • ' + esc(t.reference) : '') + '</div></div></div>' +
-            '<div class="tx-amt ' + esc(type) + '">' + (type === 'debit' ? '−' : '+') + fmtN(t.amount) + '</div>' +
-          '</div>';
-        }
-      }
-      wrap.innerHTML = html;
-    }
-
-    restGet('/wallets', 'user_id=eq.' + gUser.id + '&select=balance', function(e1, r1) {
-      if (r1 && r1.ok && r1.data && r1.data[0]) {
-        gBal = parseFloat(r1.data[0].balance) || 0;
-        if ($('d-bal')) $('d-bal').textContent = fmtN(gBal);
-      }
-      restGet('/wallet_transactions', 'user_id=eq.' + gUser.id + '&select=type,amount,reference,metadata,created_at&order=created_at.desc&limit=30', function(e2, r2) {
-        var list = (r2 && r2.ok && r2.data) ? r2.data : [];
-        renderWallet(list);
-      });
-    });
-  });
-}
-
-function openMessageDetail(msgId) {
-  gCurrentMsgId = msgId;
-  restGet('/messages', 'id=eq.' + msgId + '&select=id,subject,body,type,direction,created_at', function(e, r) {
-    if (!r || !r.ok || !r.data || !r.data[0]) return;
-    var m = r.data[0];
-    $('msg-detail-title').textContent = m.subject || 'Message';
-    $('msg-detail-body').innerHTML = '<div class="msg-meta" style="margin-bottom:10px;">' + esc(m.type || 'general') + ' • ' + esc((m.created_at || '').replace('T',' ').slice(0,16)) + '</div>' + esc(m.body || '').replace(/\n/g, '<br>');
-    $('msg-reply-text').value = '';
-    openModal('m-msg-detail');
-  });
-}
-
-function openNotificationDetail(idx) {
-  var list = $('inbox-list')._notifications || [];
-  var n = list[idx];
-  if (!n) return;
-  gCurrentMsgId = null;
-  $('msg-detail-title').textContent = 'Notification';
-  $('msg-detail-body').innerHTML = '<div class="msg-meta" style="margin-bottom:10px;">' + esc((n.created_at || '').replace('T',' ').slice(0,16)) + '</div>' + esc(n.message || '').replace(/\n/g, '<br>');
-  $('msg-reply-text').value = '';
-  openModal('m-msg-detail');
-}
-
-function openComposeModal() {
-  errHide('m-compose-err');
-  $('compose-subject').value = '';
-  $('compose-body').value = '';
-  $('compose-type').value = 'support';
-  openModal('m-compose');
-}
-
-function sendMessage() {
-  var subject = ($('compose-subject').value || '').replace(/^\s+|\s+$/g, '');
-  var body = ($('compose-body').value || '').replace(/^\s+|\s+$/g, '');
-  var type = $('compose-type').value || 'support';
-  errHide('m-compose-err');
-  if (!subject || !body) { errShow('m-compose-err', 'Enter subject and message.'); return; }
-  btnLoad('compose-send-btn', true, 'Sending…');
-  restPost('/messages', { user_id: gUser.id, direction: 'inbound', subject: subject, body: body, type: type }, function(e, r) {
-    btnLoad('compose-send-btn', false, 'Send Message');
-    if (e || !r || !r.ok) { errShow('m-compose-err', 'Failed to send message.'); return; }
-    closeModal('m-compose');
-    toast('Message sent.');
-    loadInbox();
-  });
-}
-
-function sendReply() {
-  var body = ($('msg-reply-text').value || '').replace(/^\s+|\s+$/g, '');
-  if (!body) { toast('Type your reply first'); return; }
-  btnLoad('reply-btn', true, 'Sending…');
-  restPost('/messages', { user_id: gUser.id, direction: 'inbound', subject: 'Re: ' + ($('msg-detail-title').textContent || 'Message'), body: body, type: 'support', replied_to: gCurrentMsgId }, function(e, r) {
-    btnLoad('reply-btn', false, 'Send Reply');
-    if (e || !r || !r.ok) { toast('Reply failed'); return; }
-    closeModal('m-msg-detail');
-    toast('Reply sent.');
-    loadInbox();
-  });
-}
-
-function markAllRead() {
-  ensureToken(function(err) {
-    if (err) return;
-    restPatch('/notifications', 'user_id=eq.' + gUser.id + '&is_read=eq.false', { is_read: true }, function() {
-      toast('Notifications marked as read.');
-      loadInbox();
-    });
-  });
-}
-
-function autoActivatePlans() {
-  if (_autoPayBusy || !gUser) return;
-  _autoPayBusy = true;
-  ensureToken(function(err) {
-    if (err) { _autoPayBusy = false; return; }
-    restGet('/subscriptions', 'user_id=eq.' + gUser.id + '&status=in.(pending,active)&select=id,status,total_price,amount_paid,phone_number,data_plans(daily_price)&order=created_at.asc&limit=3', function(e, r) {
-      var list = (r && r.ok && r.data) ? r.data : [];
-      function next(i) {
-        if (i >= list.length) { _autoPayBusy = false; return; }
-        var s = list[i], pl = s.data_plans || {}, daily = parseFloat(pl.daily_price) || 0, paid = parseFloat(s.amount_paid) || 0, total = parseFloat(s.total_price) || 0;
-        var remaining = total - paid;
-        if (daily > 0 && remaining > 0 && gBal >= daily) {
-          rpc('pay_installment', { p_user_id: gUser.id, p_subscription_id: s.id, p_amount: Math.min(daily, remaining), p_reference: null }, function(e2, r2) {
-            if (r2 && r2.ok && r2.data) {
-              gBal = parseFloat(r2.data.wallet_balance) || gBal;
-              if (r2.data.status === 'completed') {
-                rpc('trigger_delivery', { p_subscription_id: s.id, p_user_id: gUser.id }, function() {});
+/* ── AUTO-PAY ───────────────────────────────────────────────── */
+function autoActivatePlans(){
+  if(_autoPayBusy||!gUser)return;
+  _autoPayBusy=true;
+  ensureToken(function(err){
+    if(err){_autoPayBusy=false;return;}
+    restGet('/subscriptions','user_id=eq.'+gUser.id+'&status=in.(pending,active)&select=id,status,total_price,amount_paid,data_plans(daily_price)&order=created_at.asc&limit=3',function(e,r){
+      var list=(r&&r.ok&&r.data)?r.data:[];
+      function next(i){
+        if(i>=list.length){_autoPayBusy=false;return;}
+        var s=list[i],pl=s.data_plans||{};
+        var daily=parseFloat(pl.daily_price)||0;
+        var paid=parseFloat(s.amount_paid)||0;
+        var total=parseFloat(s.total_price)||0;
+        var remaining=total-paid;
+        if(daily>0&&remaining>0&&gBal>=daily){
+          rpc('pay_installment',{p_user_id:gUser.id,p_subscription_id:s.id,p_amount:Math.min(daily,remaining),p_reference:null},function(e2,r2){
+            if(r2&&r2.ok&&r2.data){
+              gBal=parseFloat(r2.data.wallet_balance)||gBal;
+              refreshBalDisplays();
+              if(r2.data.status==='completed'){
+                rpc('trigger_delivery',{p_subscription_id:s.id,p_user_id:gUser.id},function(){});
               }
             }
-            next(i + 1);
+            next(i+1);
           });
-        } else { next(i + 1); }
+        } else {next(i+1);}
       }
       next(0);
     });
   });
 }
 
-function openRefundModal(subId, planName, phone, paidAmt) {
-  gSelSub = { id: subId };
-  if (!$('m-refund')) {
-    var html = '<div class="modal" id="m-refund"><div class="modal-box"><div class="modal-hdr"><div class="modal-title">Refund / Help</div><button class="modal-x" id="m-refund-x">&#215;</button></div><div class="modal-body"><div id="m-refund-info"></div><div id="m-refund-err" class="err"></div><div class="field"><label>Reason</label><select id="refund-reason" style="display:block;width:100%;padding:11px 12px;border:1.5px solid #ddd;border-radius:6px;font-size:.94rem;color:#111;background:#fff;outline:none;-webkit-appearance:none;"><option value="wrong_number">Wrong phone number</option><option value="not_credited">Data not credited</option><option value="duplicate">Duplicate subscription</option><option value="other">Other issue</option></select></div><div class="field"><label>Correct Number (optional)</label><input id="refund-correct-num" type="tel" placeholder="08012345678"></div><div class="field"><label>Details (optional)</label><textarea id="refund-details" class="textarea" placeholder="Add more details"></textarea></div></div><div class="modal-foot"><button class="btn btn-blue" id="m-refund-btn" style="width:auto;display:inline-block;padding:10px 22px;margin:0;">Submit Request</button></div></div></div>';
-    document.body.insertAdjacentHTML('beforeend', html);
-    $('m-refund-x').onclick = function(){ closeModal('m-refund'); };
-    $('m-refund-btn').onclick = confirmRefund;
-    $('m-refund').onclick = function(e){ if (e.target === $('m-refund')) closeModal('m-refund'); };
+/* ── WALLET TAB ─────────────────────────────────────────────── */
+function loadWalletTab(){
+  var el=$('wallet-tab-content');
+  if(!el)return;
+  el.innerHTML='<div class="empty">Loading\u2026</div>';
+  ensureToken(function(err){
+    if(err)return;
+    restGet('/wallets','user_id=eq.'+gUser.id+'&select=balance',function(e1,r1){
+      if(r1&&r1.ok&&r1.data&&r1.data[0]){
+        gBal=parseFloat(r1.data[0].balance)||0;refreshBalDisplays();
+      }
+      restGet('/wallet_transactions','user_id=eq.'+gUser.id+'&select=type,amount,reference,metadata,created_at&order=created_at.desc&limit=40',function(e2,r2){
+        var list=(r2&&r2.ok&&r2.data)?r2.data:[];
+        var vaHtml=getVAHtml(false);
+        var html='';
+        // Balance summary
+        html+='<div class="card"><div class="card-title">Account Balance</div><div class="card-val">'+fmtN(gBal)+'</div>'+
+          '<div class="card-sub">Available in your wallet</div></div>';
+        // VA
+        if(vaHtml)html+=vaHtml;
+        // Profile
+        ensureToken(function(){
+          restGet('/profiles','user_id=eq.'+gUser.id+'&select=full_name,phone,virtual_account_number,virtual_account_bank',function(e3,r3){
+            if(r3&&r3.ok&&r3.data&&r3.data[0]){gProfile=Object.assign(gProfile||{},r3.data[0]);}
+          });
+        });
+        // Transactions
+        if(!list.length){
+          html+='<div class="empty">No transactions yet. Fund your account to get started.</div>';
+        } else {
+          var iconMap={credit:'&#10010;',debit:'&#8722;',refund:'&#8635;'};
+          var i;
+          for(i=0;i<list.length;i++){
+            var t=list[i];
+            var type=t.type||'credit';
+            var icon=iconMap[type]||'&#9679;';
+            var desc=(t.metadata&&t.metadata.description)?t.metadata.description:type;
+            html+='<div class="tx-row">'+
+              '<div class="tx-left">'+
+                '<div class="tx-ico">'+icon+'</div>'+
+                '<div>'+
+                  '<div class="tx-desc">'+esc(desc)+'</div>'+
+                  '<div class="tx-date">'+esc((t.created_at||'').replace('T',' ').slice(0,16))+(t.reference?' &bull; '+esc(t.reference):'')+'</div>'+
+                '</div>'+
+              '</div>'+
+              '<div class="tx-amt '+esc(type)+'">'+(type==='debit'?'&minus;':'+')+''+fmtN(t.amount)+'</div>'+
+            '</div>';
+          }
+        }
+        el.innerHTML=html;
+      });
+    });
+  });
+}
+
+/* ── INBOX / MESSAGES ───────────────────────────────────────── */
+function loadInboxBadge(){
+  if(!gUser)return;
+  ensureToken(function(err){
+    if(err)return;
+    rpc('get_inbox',{p_user_id:gUser.id},function(e,r){
+      var badge=$('inbox-badge');
+      if(!badge)return;
+      var count=(r&&r.ok&&r.data&&r.data.unread_count)||0;
+      if(count>0){badge.textContent=count>99?'99+':count;badge.style.display='inline';}
+      else{badge.style.display='none';}
+    });
+  });
+}
+function loadInbox(){
+  ensureToken(function(err){
+    if(err)return;
+    var wrap=$('inbox-list');
+    // Try messages table first
+    restGet('/messages','user_id=eq.'+gUser.id+'&order=created_at.desc&limit=20',function(e1,r1){
+      var list=(r1&&r1.ok&&r1.data)?r1.data:[];
+      if(list.length){
+        wrap.innerHTML=renderMessageList(list);
+        return;
+      }
+      // Fall back to notifications
+      restGet('/notifications','user_id=eq.'+gUser.id+'&order=created_at.desc&limit=20',function(e,r){
+        if(!r||!r.ok||!r.data||!r.data.length){
+          wrap.innerHTML='<div class="empty">No messages or notifications.</div>';return;
+        }
+        var html='',i;
+        for(i=0;i<r.data.length;i++){
+          var n=r.data[i];
+          html+='<div class="msg-row'+(n.is_read?'':' unread')+'" onclick="openNotificationDetail('+i+')">'+
+            '<div class="msg-sub">Notification</div>'+
+            '<div class="msg-body">'+esc(n.message||'')+'</div>'+
+            '<div class="msg-meta">'+esc((n.created_at||'').replace('T',' ').slice(0,16))+'</div>'+
+          '</div>';
+        }
+        wrap.innerHTML=html;
+        wrap._notifications=r.data;
+        restPatch('/notifications','user_id=eq.'+gUser.id+'&is_read=eq.false',{is_read:true},function(){});
+        loadInboxBadge();
+      });
+    });
+  });
+}
+function renderMessageList(list){
+  var html='',i;
+  for(i=0;i<list.length;i++){
+    var m=list[i];
+    html+='<div class="msg-row'+((!m.is_read&&m.direction!=='inbound')?' unread':'')+'" onclick="openMessageDetail(\''+esc(m.id)+'\')">'+
+      '<div class="msg-sub">'+esc(m.subject||'Message')+'</div>'+
+      '<div class="msg-body">'+esc((m.body||'').slice(0,140))+((m.body||'').length>140?'\u2026':'')+'</div>'+
+      '<div class="msg-meta">'+esc(m.type||'general')+' &bull; '+esc((m.created_at||'').replace('T',' ').slice(0,16))+'</div>'+
+    '</div>';
   }
-  $('m-refund-info').innerHTML = '<div class="row-line"><span class="row-label">Plan</span><span class="row-val">' + planName + '</span></div><div class="row-line"><span class="row-label">Phone</span><span class="row-val">' + phone + '</span></div><div class="row-line"><span class="row-label">Paid</span><span class="row-val">' + fmtN(paidAmt) + '</span></div>';
-  $('refund-reason').value = 'wrong_number';
-  $('refund-correct-num').value = '';
-  $('refund-details').value = '';
+  return html;
+}
+function openMessageDetail(msgId){
+  gCurrentMsgId=msgId;
+  restGet('/messages','id=eq.'+msgId+'&select=id,subject,body,type,direction,created_at',function(e,r){
+    if(!r||!r.ok||!r.data||!r.data[0])return;
+    var m=r.data[0];
+    $('msg-detail-title').textContent=m.subject||'Message';
+    $('msg-detail-body').innerHTML='<div class="msg-meta" style="margin-bottom:10px;">'+esc(m.type||'general')+' &bull; '+esc((m.created_at||'').replace('T',' ').slice(0,16))+'</div>'+esc(m.body||'').replace(/\n/g,'<br>');
+    $('msg-reply-text').value='';
+    openModal('m-msg-detail');
+  });
+}
+function openNotificationDetail(idx){
+  var list=($('inbox-list')&&$('inbox-list')._notifications)||[];
+  var n=list[idx];if(!n)return;
+  gCurrentMsgId=null;
+  $('msg-detail-title').textContent='Notification';
+  $('msg-detail-body').innerHTML='<div class="msg-meta" style="margin-bottom:10px;">'+esc((n.created_at||'').replace('T',' ').slice(0,16))+'</div>'+esc(n.message||'').replace(/\n/g,'<br>');
+  $('msg-reply-text').value='';
+  openModal('m-msg-detail');
+}
+function openComposeModal(){
+  errHide('m-compose-err');
+  if($('compose-subject'))$('compose-subject').value='';
+  if($('compose-body'))$('compose-body').value='';
+  if($('compose-type'))$('compose-type').value='support';
+  openModal('m-compose');
+}
+function sendMessage(){
+  var subject=($('compose-subject').value||'').replace(/^\s+|\s+$/g,'');
+  var body=($('compose-body').value||'').replace(/^\s+|\s+$/g,'');
+  var type=$('compose-type').value||'support';
+  errHide('m-compose-err');
+  if(!subject||!body){errShow('m-compose-err','Enter subject and message.');return;}
+  btnLoad('compose-send-btn',true,'Sending\u2026');
+  restPost('/messages',{user_id:gUser.id,direction:'inbound',subject:subject,body:body,type:type},function(e,r){
+    btnLoad('compose-send-btn',false,'Send Message');
+    if(e||!r||!r.ok){errShow('m-compose-err','Failed to send message.');return;}
+    closeModal('m-compose');toast('Message sent.');loadInbox();
+  });
+}
+function sendReply(){
+  var body=($('msg-reply-text').value||'').replace(/^\s+|\s+$/g,'');
+  if(!body){toast('Type your reply first');return;}
+  btnLoad('reply-btn',true,'Sending\u2026');
+  var subject='Re: '+($('msg-detail-title').textContent||'Message');
+  restPost('/messages',{user_id:gUser.id,direction:'inbound',subject:subject,body:body,type:'support',replied_to:gCurrentMsgId},function(e,r){
+    btnLoad('reply-btn',false,'Send Reply');
+    if(e||!r||!r.ok){toast('Reply failed');return;}
+    closeModal('m-msg-detail');toast('Reply sent.');loadInbox();
+  });
+}
+function markAllRead(){
+  ensureToken(function(err){
+    if(err)return;
+    restPatch('/notifications','user_id=eq.'+gUser.id+'&is_read=eq.false',{is_read:true},function(){
+      toast('Notifications marked as read.');loadInbox();loadInboxBadge();
+    });
+  });
+}
+
+/* ── REFUND / REPORT ISSUE ──────────────────────────────────── */
+function openRefundModal(subId,planName,phone,paidAmt){
+  gSelSub={id:subId};
+  if(!$('m-refund')){
+    var html='<div class="modal" id="m-refund"><div class="modal-box">'+
+      '<div class="modal-hdr"><div class="modal-title">Report Issue / Refund</div><button class="modal-x" id="m-refund-x">&#215;</button></div>'+
+      '<div class="modal-body">'+
+        '<div id="m-refund-info"></div>'+
+        '<div id="m-refund-err" class="err"></div>'+
+        '<div class="field"><label>Reason</label>'+
+          '<select id="refund-reason" style="display:block;width:100%;padding:11px 12px;border:1.5px solid #ddd;border-radius:6px;font-size:.94rem;color:#111;background:#fff;outline:none;-webkit-appearance:none;">'+
+            '<option value="wrong_number">Wrong phone number</option>'+
+            '<option value="not_credited">Data not credited</option>'+
+            '<option value="duplicate">Duplicate subscription</option>'+
+            '<option value="other">Other issue</option>'+
+          '</select></div>'+
+        '<div class="field"><label>Correct Number (optional)</label><input id="refund-correct-num" type="tel" placeholder="08012345678"></div>'+
+        '<div class="field"><label>Details (optional)</label><textarea id="refund-details" class="textarea" placeholder="Add more details"></textarea></div>'+
+      '</div>'+
+      '<div class="modal-foot"><button class="btn btn-blue" id="m-refund-btn" style="width:auto;display:inline-block;padding:10px 22px;margin:0;">Submit Request</button></div>'+
+    '</div></div>';
+    document.body.insertAdjacentHTML('beforeend',html);
+    $('m-refund-x').onclick=function(){closeModal('m-refund');};
+    $('m-refund-btn').onclick=confirmRefund;
+    $('m-refund').onclick=function(e){if(e.target===$('m-refund'))closeModal('m-refund');};
+  }
+  $('m-refund-info').innerHTML=
+    '<div class="row-line"><span class="row-label">Plan</span><span class="row-val">'+esc(planName)+'</span></div>'+
+    (phone?'<div class="row-line"><span class="row-label">Phone</span><span class="row-val">'+esc(phone)+'</span></div>':'')+
+    (paidAmt?'<div class="row-line"><span class="row-label">Amount Paid</span><span class="row-val">'+fmtN(paidAmt)+'</span></div>':'');
+  $('refund-reason').value='wrong_number';
+  $('refund-correct-num').value='';
+  $('refund-details').value='';
   errHide('m-refund-err');
   openModal('m-refund');
 }
-
-function confirmRefund() {
-  if (!gSelSub || !gSelSub.id) return;
-  var body = {
-    user_id: gUser.id,
-    subscription_id: gSelSub.id,
-    reason: $('refund-reason').value,
-    correct_phone: (($('refund-correct-num').value || '').replace(/^\s+|\s+$/g, '') || null),
-    details: (($('refund-details').value || '').replace(/^\s+|\s+$/g, '') || null),
-    status: 'pending'
-  };
-  btnLoad('m-refund-btn', true, 'Submitting…');
-  restPost('/refund_requests', body, function(e, r) {
-    if (!e && r && r.ok) {
-      btnLoad('m-refund-btn', false, 'Submit Request');
-      closeModal('m-refund');
-      toast('Refund request submitted.');
-      return;
-    }
-    restPost('/messages', { user_id: gUser.id, direction: 'inbound', subject: 'Refund request', body: 'Subscription ID: ' + gSelSub.id + '\nReason: ' + body.reason + '\nCorrect phone: ' + (body.correct_phone || '') + '\nDetails: ' + (body.details || ''), type: 'refund' }, function(e2, r2) {
-      btnLoad('m-refund-btn', false, 'Submit Request');
-      if (e2 || !r2 || !r2.ok) { errShow('m-refund-err', 'Could not submit request.'); return; }
-      closeModal('m-refund');
-      toast('Refund request submitted.');
-      loadInbox();
-    });
+function confirmRefund(){
+  if(!gSelSub||!gSelSub.id)return;
+  var body={user_id:gUser.id,subscription_id:gSelSub.id,
+    reason:$('refund-reason').value,
+    correct_phone:($('refund-correct-num').value||'').replace(/^\s+|\s+$/g,'')||null,
+    details:($('refund-details').value||'').replace(/^\s+|\s+$/g,'')||null,
+    status:'pending'};
+  btnLoad('m-refund-btn',true,'Submitting\u2026');
+  restPost('/refund_requests',body,function(e,r){
+    if(!e&&r&&r.ok){btnLoad('m-refund-btn',false,'Submit Request');closeModal('m-refund');toast('Refund request submitted.');return;}
+    // Fall back to message
+    restPost('/messages',{user_id:gUser.id,direction:'inbound',subject:'Refund request',
+      body:'Subscription ID: '+gSelSub.id+'\nReason: '+body.reason+'\nCorrect phone: '+(body.correct_phone||'')+'\nDetails: '+(body.details||''),type:'refund'},
+      function(e2,r2){
+        btnLoad('m-refund-btn',false,'Submit Request');
+        if(e2||!r2||!r2.ok){errShow('m-refund-err','Could not submit request. Please contact support@databulge.com');return;}
+        closeModal('m-refund');toast('Refund request submitted.');loadInbox();
+      }
+    );
   });
 }
 
-function checkUndeliveredData() {
-  ensureToken(function(err) {
-    if (err) return;
-    var now = new Date().getTime();
-    var start = new Date(now - (10 * 60 * 1000)).toISOString();
-    var end = new Date(now - (5 * 60 * 1000)).toISOString();
-    restGet('/subscriptions', 'user_id=eq.' + gUser.id + '&status=in.(completed,active)&select=id,phone_number,updated_at,data_plans(data_size,network)&updated_at=gte.' + encodeURIComponent(start) + '&updated_at=lte.' + encodeURIComponent(end) + '&order=updated_at.desc&limit=1', function(e, r) {
-      var s = r && r.ok && r.data && r.data[0];
-      if (!s || $('delivery-check-toast')) return;
-      var pl = s.data_plans || {};
-      var planLabel = esc((pl.data_size || 'data') + ' ' + (pl.network || ''));
-      var phone = esc(s.phone_number || 'your number');
-      var el = document.createElement('div');
-      el.id = 'delivery-check-toast';
-      el.style.cssText = 'position:fixed;bottom:72px;left:50%;transform:translateX(-50%);z-index:9999;background:#323232;color:#fff;padding:12px 14px;border-radius:8px;font-size:.82rem;max-width:calc(100vw - 28px);width:320px;';
-      el.innerHTML = '<div style="margin-bottom:10px;font-weight:700;">Did you receive your ' + planLabel + ' on ' + phone + '?</div>' +
-        '<div style="display:flex;gap:8px;">' +
-        '<button style="flex:1;padding:8px;border:none;border-radius:6px;background:#e5e7eb;color:#111;cursor:pointer;" onclick="var x=document.getElementById(\'delivery-check-toast\'); if(x)x.parentNode.removeChild(x);">Yes</button>' +
-        '<button style="flex:1;padding:8px;border:none;border-radius:6px;background:#fff2f2;color:#c0392b;cursor:pointer;" onclick="openRefundModal(\'' + esc(s.id) + '\',\'' + planLabel + '\',\'' + phone + '\',0); var x=document.getElementById(\'delivery-check-toast\'); if(x)x.parentNode.removeChild(x);">Not yet</button>' +
+/* ── DELIVERY CHECK ─────────────────────────────────────────── */
+function checkUndeliveredData(){
+  ensureToken(function(err){
+    if(err)return;
+    var now=new Date().getTime();
+    var start=new Date(now-(10*60*1000)).toISOString();
+    var end=new Date(now-(5*60*1000)).toISOString();
+    restGet('/subscriptions','user_id=eq.'+gUser.id+'&status=in.(completed,active)&select=id,phone_number,updated_at,data_plans(data_size,network)&updated_at=gte.'+encodeURIComponent(start)+'&updated_at=lte.'+encodeURIComponent(end)+'&order=updated_at.desc&limit=1',function(e,r){
+      var s=r&&r.ok&&r.data&&r.data[0];
+      if(!s||$('delivery-banner').className==='on')return;
+      var pl=s.data_plans||{};
+      var planLabel=esc((pl.data_size||'data')+' '+(pl.network||''));
+      var phone=esc(s.phone_number||'your number');
+      var subIdEsc=esc(s.id);
+      var banner=$('delivery-banner');
+      banner.innerHTML='<div style="margin-bottom:10px;font-weight:700;">Did you receive your '+planLabel+' on '+phone+'?</div>'+
+        '<div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:8px;">'+
+        '<button style="-webkit-box-flex:1;-webkit-flex:1;flex:1;padding:8px;border:none;border-radius:6px;background:#e5e7eb;color:#111;cursor:pointer;" onclick="document.getElementById(\'delivery-banner\').className=\'\';">Yes &#10003;</button>'+
+        '<button style="-webkit-box-flex:1;-webkit-flex:1;flex:1;padding:8px;border:none;border-radius:6px;background:#fff2f2;color:#c0392b;cursor:pointer;" onclick="openRefundModal(\''+subIdEsc+'\',\''+planLabel+'\',\''+phone+'\',0);document.getElementById(\'delivery-banner\').className=\'\';">Not Yet</button>'+
         '</div>';
-      document.body.appendChild(el);
-      setTimeout(function(){ var x=document.getElementById('delivery-check-toast'); if (x && x.parentNode) x.parentNode.removeChild(x); }, 20000);
+      banner.className='on';
+      setTimeout(function(){banner.className='';},20000);
     });
   });
 }
 
-/* ── ESCAPE ─────────────────────────────────────────────────── */
-function esc(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
-}
-
-/* ── URL HASH PARSER (password recovery) ───────────────────── */
-function parseHash() {
-  var hash = (window.location.hash || '').replace(/^#/, '');
-  if (!hash) return;
-  var params = {};
-  var pairs = hash.split('&');
-  var i, eq, k, v;
-  for (i = 0; i < pairs.length; i++) {
-    eq = pairs[i].indexOf('=');
-    if (eq > -1) {
-      k = decodeURIComponent(pairs[i].slice(0, eq));
-      v = decodeURIComponent(pairs[i].slice(eq + 1));
-      params[k] = v;
-    }
+/* ── HASH PARSER (password recovery) ───────────────────────── */
+function parseHash(){
+  var hash=(window.location.hash||'').replace(/^#/,'');
+  if(!hash)return;
+  var params={},pairs=hash.split('&'),i,eq,k,v;
+  for(i=0;i<pairs.length;i++){
+    eq=pairs[i].indexOf('=');
+    if(eq>-1){k=decodeURIComponent(pairs[i].slice(0,eq));v=decodeURIComponent(pairs[i].slice(eq+1));params[k]=v;}
   }
-  if (params.type === 'recovery' && params.access_token) {
-    gRecovAT = params.access_token;
-    gRecovRT = params.refresh_token || '';
-    try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
-    showPage('auth');
-    showScreen('scr-r');
+  if(params.type==='recovery'&&params.access_token){
+    gRecovAT=params.access_token;gRecovRT=params.refresh_token||'';
+    try{window.history.replaceState({},document.title,window.location.pathname);}catch(e){}
+    showPage('auth');showScreen('scr-r');
   }
 }
 
 /* ── INIT ───────────────────────────────────────────────────── */
-function init() {
-  // Check for recovery hash first
+function init(){
   parseHash();
-
-  // Check for stored session
-  if (_loadSession()) {
-    // Validate / refresh the token
-    ensureToken(function(err) {
-      if (!err && gUser) {
-        bootApp();
-      } else {
-        _clearSession();
-        showPage('auth');
-        showScreen('scr-w');
-      }
+  if(_loadSession()){
+    ensureToken(function(err){
+      if(!err&&gUser)bootApp();
+      else{_clearSession();showPage('auth');showScreen('scr-w');}
     });
-  } else {
-    showPage('auth');
-    showScreen('scr-w');
-  }
+  } else {showPage('auth');showScreen('scr-w');}
 }
 
-/* ── BUTTON WIRING ──────────────────────────────────────────── */
-function wire() {
+/* ── WIRE ───────────────────────────────────────────────────── */
+function wire(){
   // Auth navigation
-  $('w-login-btn').onclick  = function() { showScreen('scr-l'); };
-  $('w-signup-btn').onclick = function() { showScreen('scr-s'); };
-  $('l-back-btn').onclick   = function() { showScreen('scr-w'); };
-  $('s-back-btn').onclick   = function() { showScreen('scr-w'); };
-  $('l-to-s').onclick       = function() { showScreen('scr-s'); };
-  $('s-to-l').onclick       = function() { showScreen('scr-l'); };
-  $('r-back-btn').onclick   = function() { showScreen('scr-l'); };
-
+  $('w-login-btn').onclick=function(){showScreen('scr-l');};
+  $('w-signup-btn').onclick=function(){showScreen('scr-s');};
+  $('l-back-btn').onclick=function(){showScreen('scr-w');};
+  $('s-back-btn').onclick=function(){showScreen('scr-w');};
+  $('l-to-s').onclick=function(){showScreen('scr-s');};
+  $('s-to-l').onclick=function(){showScreen('scr-l');};
+  $('r-back-btn').onclick=function(){showScreen('scr-l');};
   // Auth actions
-  $('l-btn').onclick      = doLogin;
-  $('s-btn').onclick      = doSignup;
-  $('r-btn').onclick      = doResetPassword;
-  $('l-forgot-btn').onclick = function() {
-    var e = $('l-email');
-    if (e) $('fg-email').value = e.value || '';
-    errHide('fg-err'); okHide('fg-ok');
-    openModal('m-forgot');
-  };
-  $('r-req-btn').onclick  = function() { closeModal('m-forgot'); openModal('m-forgot'); };
-
+  $('l-btn').onclick=doLogin;$('s-btn').onclick=doSignup;$('r-btn').onclick=doResetPassword;
+  $('l-forgot-btn').onclick=function(){var e=$('l-email');if(e)$('fg-email').value=e.value||'';errHide('fg-err');okHide('fg-ok');openModal('m-forgot');};
+  if($('r-req-btn'))$('r-req-btn').onclick=function(){openModal('m-forgot');};
   // Eye toggles
-  $('l-eye').onclick = function() { togglePw('l-pass', 'l-eye'); };
-  $('s-eye').onclick = function() { togglePw('s-pass', 's-eye'); };
-
-  // Enter key
-  $('l-pass').onkeydown  = function(e) { if ((e||window.event).keyCode === 13) doLogin(); };
-  $('l-email').onkeydown = function(e) { if ((e||window.event).keyCode === 13) $('l-pass').focus(); };
-  $('s-pass').onkeydown  = function(e) { if ((e||window.event).keyCode === 13) doSignup(); };
-
+  $('l-eye').onclick=function(){togglePw('l-pass','l-eye');};
+  $('s-eye').onclick=function(){togglePw('s-pass','s-eye');};
+  // Enter keys
+  $('l-pass').onkeydown=function(e){if((e||window.event).keyCode===13)doLogin();};
+  $('l-email').onkeydown=function(e){if((e||window.event).keyCode===13)$('l-pass').focus();};
+  $('s-pass').onkeydown=function(e){if((e||window.event).keyCode===13)doSignup();};
   // Forgot modal
-  $('m-forgot-x').onclick   = function() { closeModal('m-forgot'); };
-  $('fg-send-btn').onclick   = doForgot;
-  $('fg-email').onkeydown   = function(e) { if ((e||window.event).keyCode === 13) doForgot(); };
-
+  $('m-forgot-x').onclick=function(){closeModal('m-forgot');};
+  $('fg-send-btn').onclick=doForgot;
+  $('fg-email').onkeydown=function(e){if((e||window.event).keyCode===13)doForgot();};
   // Terms modal
-  $('s-terms-link').onclick = function() { openModal('m-terms'); };
-  $('m-terms-x').onclick    = function() { closeModal('m-terms'); };
-  $('m-terms-agree').onclick = function() {
-    $('s-terms').checked = true;
-    $('s-terms-err').className = 'terms-err';
-    closeModal('m-terms');
-  };
-
-  // Terms checkbox live feedback
-  $('s-terms').onchange = function() {
-    if ($('s-terms').checked) $('s-terms-err').className = 'terms-err';
-  };
-
+  $('s-terms-link').onclick=function(){openModal('m-terms');};
+  $('m-terms-x').onclick=function(){closeModal('m-terms');};
+  $('m-terms-agree').onclick=function(){$('s-terms').checked=true;$('s-terms-err').className='terms-err';closeModal('m-terms');};
+  $('s-terms').onchange=function(){if($('s-terms').checked)$('s-terms-err').className='terms-err';};
   // App tabs
-  var tabIds = ['tab-plans','tab-subs','tab-wallet','tab-inbox'];
-  var i;
-  for (i = 0; i < tabIds.length; i++) {
-    (function(t) { $(t).onclick = function() { showTab(t.replace('tab-', '')); }; })(tabIds[i]);
+  var tabBtns=['tab-dash','tab-plans','tab-subs','tab-wallet','tab-inbox'],i;
+  for(i=0;i<tabBtns.length;i++){
+    (function(t){$(t).onclick=function(){showTab(t.replace('tab-',''));};} )(tabBtns[i]);
   }
-
+  // Tab-specific buttons
+  $('pay-days-7').onclick=function(){setPayDays(7);};
+  $('pay-days-28').onclick=function(){setPayDays(28);};
+  $('m-sub-days-7').onclick=function(){gModalPayDays=7;updateSubDaysUI();updateSubInfo();};
+  $('m-sub-days-28').onclick=function(){gModalPayDays=28;updateSubDaysUI();updateSubInfo();};
   // Subscribe modal
-  $('m-sub-x').onclick  = function() { closeModal('m-sub'); };
-  $('m-sub-btn').onclick = confirmSub;
-
+  $('m-sub-x').onclick=function(){closeModal('m-sub');};
+  $('m-sub-btn').onclick=confirmSub;
   // Pay modal
-  $('m-pay-x').onclick   = function() { closeModal('m-pay'); };
-  $('m-pay-btn').onclick = confirmPay;
-
-  // Wallet + message modals
-  $('wallet-fund-btn').onclick = openFundModal;
-  $('m-fund-x').onclick = function() { closeModal('m-fund'); };
-  if ($('m-fund-btn')) $('m-fund-btn').onclick = confirmFund;
-  $('m-va-x').onclick = function() { closeModal('m-va'); };
-  $('pay-days-7').onclick = function() { setPayDays(7); };
-  $('pay-days-28').onclick = function() { setPayDays(28); };
-  $('m-sub-days-7').onclick = function() { gModalPayDays = 7; updateSubDaysUI(); updateSubInfo(); };
-  $('m-sub-days-28').onclick = function() { gModalPayDays = 28; updateSubDaysUI(); updateSubInfo(); };
-  $('compose-btn-open').onclick = openComposeModal;
-  $('mark-read-btn').onclick = markAllRead;
-  $('m-compose-x').onclick = function() { closeModal('m-compose'); };
-  $('compose-send-btn').onclick = sendMessage;
-  $('m-msg-detail-x').onclick = function() { closeModal('m-msg-detail'); };
-  $('reply-btn').onclick = sendReply;
-
-  // Backdrop close
-  $('m-forgot').onclick  = function(e) { if (e.target === $('m-forgot'))  closeModal('m-forgot'); };
-  $('m-terms').onclick   = function(e) { if (e.target === $('m-terms'))   closeModal('m-terms'); };
-  $('m-sub').onclick     = function(e) { if (e.target === $('m-sub'))     closeModal('m-sub'); };
-  $('m-pay').onclick     = function(e) { if (e.target === $('m-pay'))     closeModal('m-pay'); };
-  $('m-fund').onclick    = function(e) { if (e.target === $('m-fund'))    closeModal('m-fund'); };
-  $('m-va').onclick      = function(e) { if (e.target === $('m-va'))      closeModal('m-va'); };
-  $('m-compose').onclick = function(e) { if (e.target === $('m-compose')) closeModal('m-compose'); };
-  $('m-msg-detail').onclick = function(e) { if (e.target === $('m-msg-detail')) closeModal('m-msg-detail'); };
-
+  $('m-pay-x').onclick=function(){closeModal('m-pay');};
+  $('m-pay-btn').onclick=confirmPay;
+  // Wallet/Fund
+  $('d-fund-btn').onclick=openFundModal;
+  $('wallet-fund-btn').onclick=openFundModal;
+  $('wallet-va-btn').onclick=openVAModal;
+  $('m-fund-x').onclick=function(){closeModal('m-fund');};
+  $('m-va-x').onclick=function(){closeModal('m-va');};
+  // Inbox
+  $('mark-read-btn').onclick=markAllRead;
+  $('compose-btn-open').onclick=openComposeModal;
+  $('m-compose-x').onclick=function(){closeModal('m-compose');};
+  $('compose-send-btn').onclick=sendMessage;
+  $('m-msg-detail-x').onclick=function(){closeModal('m-msg-detail');};
+  $('reply-btn').onclick=sendReply;
+  // Refresh / auto-pay
+  $('refresh-subs-btn').onclick=function(){loadSubs();toast('Refreshing\u2026');};
+  $('auto-pay-btn').onclick=function(){autoActivatePlans();toast('Running auto-pay\u2026');setTimeout(function(){loadDashboard();loadCashflow();},2000);};
   // Logout
-  $('logout-btn').onclick = doLogout;
-
-  // Refresh subs
-  $('refresh-subs-btn').onclick = function() { loadSubs(); toast('Refreshing\u2026'); };
+  $('logout-btn').onclick=doLogout;
+  // Backdrop close
+  var modalIds=['m-forgot','m-terms','m-sub','m-pay','m-fund','m-va','m-compose','m-msg-detail'],j;
+  for(j=0;j<modalIds.length;j++){
+    (function(mid){var m=$(mid);if(m)m.onclick=function(e){if(e.target===m)closeModal(mid);};})(modalIds[j]);
+  }
 }
+
 
 // Start
 if (document.readyState === 'loading') {
