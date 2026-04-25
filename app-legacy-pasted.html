@@ -15,33 +15,37 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 .pg.on{display:block;}
 
 /* ── AUTH PAGE ── */
-#pg-auth{padding:0;}
-.auth-wrap{max-width:400px;margin:0 auto;padding:32px 18px 40px;}
-.auth-logo{text-align:center;margin-bottom:24px;}
-.auth-logo-box{display:inline-block;width:52px;height:52px;background:#1877f2;color:#fff;font-size:22px;font-weight:900;line-height:52px;border-radius:12px;}
-.auth-logo-name{display:block;font-size:1.5rem;font-weight:900;color:#1877f2;margin-top:8px;}
-.auth-logo-tag{display:block;font-size:.82rem;color:#888;margin-top:3px;}
-.auth-card{background:#fff;border:1px solid #ddd;border-radius:8px;padding:22px 18px 18px;}
-@media(max-width:480px){.auth-card{border:none;padding:0;}}
-.auth-title{font-size:1.15rem;font-weight:900;color:#111;margin-bottom:3px;}
+#pg-auth{padding:0;background:linear-gradient(160deg,#0f2952 0%,#1a3a72 50%,#1A56DB 100%);min-height:100vh;}
+.auth-wrap{max-width:400px;margin:0 auto;padding:0 0 40px;}
+.auth-hero{padding:36px 20px 28px;text-align:center;}
+.auth-wordmark{display:block;width:100%;max-width:300px;margin:0 auto 18px;}
+.auth-tagline{font-size:.82rem;color:rgba(255,255,255,.6);letter-spacing:.06em;text-transform:uppercase;}
+.auth-card{background:#fff;border-radius:16px 16px 0 0;padding:26px 20px 20px;min-height:calc(100vh - 220px);}
+@media(min-width:480px){
+  .auth-card{border-radius:16px;min-height:auto;margin:0 16px;}
+  .auth-hero{padding:48px 20px 32px;}
+}
+.auth-logo{display:none;}/* hide old logo — replaced by hero */
+.auth-logo-box,.auth-logo-name,.auth-logo-tag{display:none;}
+.auth-title{font-size:1.18rem;font-weight:900;color:#111;margin-bottom:3px;}
 .auth-sub{font-size:.82rem;color:#888;margin-bottom:18px;}
 .field{margin-bottom:13px;}
 .field label{display:block;font-size:.78rem;font-weight:700;color:#555;margin-bottom:4px;}
 .field input{display:block;width:100%;padding:11px 12px;border:1.5px solid #ddd;border-radius:6px;font-size:.94rem;color:#111;background:#fff;outline:none;-webkit-appearance:none;}
-.field input:focus{border-color:#1877f2;}
+.field input:focus{border-color:#1A56DB;}
 .pw-wrap{position:relative;}
 .pw-wrap input{padding-right:42px;}
 .eye{position:absolute;right:10px;top:50%;margin-top:-10px;background:none;border:none;cursor:pointer;font-size:.95rem;padding:2px;color:#888;}
 .btn{display:block;width:100%;padding:12px;border:none;border-radius:6px;font-size:.97rem;font-weight:700;cursor:pointer;text-align:center;-webkit-appearance:none;margin-bottom:10px;}
-.btn-blue{background:#1877f2;color:#fff;}
-.btn-lite{background:#e7f3ff;color:#1877f2;}
+.btn-blue{background:#1A56DB;color:#fff;}
+.btn-lite{background:#eaedff;color:#1A56DB;}
 .btn:disabled{opacity:.6;cursor:default;}
 .divdr{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;gap:8px;margin:12px 0;}
 .divdr:before,.divdr:after{content:'';-webkit-box-flex:1;-webkit-flex:1;flex:1;height:1px;background:#ddd;}
 .divdr span{font-size:.72rem;color:#bbb;font-weight:700;}
 .link-row{text-align:center;font-size:.81rem;color:#888;margin-top:12px;}
-.txt-link{background:none;border:none;cursor:pointer;color:#1877f2;font-weight:700;font-size:inherit;padding:0;font-family:inherit;}
-.forgot-btn{display:block;text-align:right;background:none;border:none;cursor:pointer;color:#1877f2;font-size:.78rem;font-weight:700;padding:0;margin-bottom:13px;font-family:inherit;}
+.txt-link{background:none;border:none;cursor:pointer;color:#1A56DB;font-weight:700;font-size:inherit;padding:0;font-family:inherit;}
+.forgot-btn{display:block;text-align:right;background:none;border:none;cursor:pointer;color:#1A56DB;font-size:.78rem;font-weight:700;padding:0;margin-bottom:13px;font-family:inherit;}
 .err{display:none;background:#fff2f2;border:1px solid #f5c6cb;color:#c0392b;padding:9px 11px;border-radius:6px;font-size:.8rem;margin-bottom:12px;}
 .err.on{display:block;}
 .ok{display:none;background:#f0fff4;border:1px solid #b2dfdb;color:#1a7a4a;padding:9px 11px;border-radius:6px;font-size:.8rem;margin-bottom:12px;}
@@ -68,16 +72,19 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 
 /* ── MAIN APP ── */
 #pg-app{padding:0;}
-.top-bar{background:#1877f2;color:#fff;padding:12px 14px;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.top-bar{background:#1A56DB;color:#fff;padding:12px 14px;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;position:sticky;top:0;z-index:100;}
 .top-bar-title{font-size:1.05rem;font-weight:900;}
 .top-bar-right{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;gap:10px;}
 .avatar{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.25);color:#fff;font-size:.85rem;font-weight:900;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;}
 .logout-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;padding:5px 10px;border-radius:5px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;}
 
-/* Tabs */
-.tabs{display:-webkit-box;display:-webkit-flex;display:flex;background:#f5f5f5;border-bottom:2px solid #ddd;overflow-x:auto;-webkit-overflow-scrolling:touch;}
-.tab{padding:10px 16px;background:none;border:none;cursor:pointer;font-size:.82rem;font-weight:700;color:#888;font-family:inherit;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-2px;}
-.tab.act{color:#1877f2;border-bottom:2px solid #1877f2;}
+/* Tabs — GPU-composited to kill the double-border ghost on Android 10 & below */
+.tabs{display:-webkit-box;display:-webkit-flex;display:flex;background:#f5f5f5;border-bottom:0;overflow-x:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:1;-webkit-transform:translateZ(0);transform:translateZ(0);}
+.tabs::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:#ddd;z-index:0;}
+.tab{padding:10px 16px;background:none;border:none;cursor:pointer;font-size:.82rem;font-weight:700;color:#888;font-family:inherit;white-space:nowrap;position:relative;z-index:1;-webkit-tap-highlight-color:transparent;outline:none;}
+.tab::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:transparent;-webkit-transform:translateZ(0);transform:translateZ(0);}
+.tab.act{color:#1A56DB;}
+.tab.act::after{background:#1A56DB;}
 .tab-content{display:none;padding:14px;}
 .tab-content.on{display:block;}
 
@@ -89,7 +96,7 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 
 /* Plan cards */
 .plan-card{border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:10px;background:#fff;}
-.plan-card:active{background:#f0f4ff;}
+.plan-card:active{background:#eef1ff;}
 .plan-top{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;-webkit-box-align:center;-webkit-align-items:center;align-items:center;margin-bottom:4px;}
 .plan-size{font-size:1.1rem;font-weight:900;color:#111;}
 .plan-net{font-size:.75rem;padding:2px 8px;border-radius:12px;font-weight:700;display:inline-block;}
@@ -97,10 +104,10 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 .net-GLO{background:#dcfce7;color:#14532d;}
 .net-AIRTEL{background:#fee2e2;color:#991b1b;}
 .net-9MOBILE{background:#ede9fe;color:#4c1d95;}
-.net-other{background:#e7f3ff;color:#1877f2;}
-.plan-price{font-size:1rem;font-weight:900;color:#1877f2;}
+.net-other{background:#eaedff;color:#1A56DB;}
+.plan-price{font-size:1rem;font-weight:900;color:#1A56DB;}
 .plan-sub{font-size:.75rem;color:#888;}
-.plan-btn{display:block;width:100%;margin-top:10px;padding:9px;background:#1877f2;color:#fff;border:none;border-radius:6px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;-webkit-appearance:none;}
+.plan-btn{display:block;width:100%;margin-top:10px;padding:9px;background:#1A56DB;color:#fff;border:none;border-radius:6px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;-webkit-appearance:none;}
 
 /* Subscription rows */
 .sub-row{border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:10px;background:#fff;}
@@ -109,16 +116,16 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 .sub-status{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:10px;}
 .status-active{background:#d1fae5;color:#065f46;}
 .status-pending{background:#fef3c7;color:#92400e;}
-.status-completed{background:#e0e7ff;color:#3730a3;}
+.status-completed{background:#e8eaff;color:#2A3FA3;}
 .status-failed{background:#fee2e2;color:#991b1b;}
 .prog-bar{background:#e5e7eb;border-radius:4px;height:6px;margin:8px 0 4px;overflow:hidden;}
-.prog-fill{background:#1877f2;height:100%;border-radius:4px;}
+.prog-fill{background:#1A56DB;height:100%;border-radius:4px;}
 .sub-meta{font-size:.75rem;color:#888;}
 .pay-btn{margin-top:8px;padding:8px;background:#059669;color:#fff;border:none;border-radius:6px;font-size:.82rem;font-weight:700;cursor:pointer;width:100%;font-family:inherit;-webkit-appearance:none;}
 
 /* Notification rows */
 .notif-row{padding:12px;border-bottom:1px solid #f0f0f0;font-size:.83rem;}
-.notif-row.unread{background:#f0f7ff;}
+.notif-row.unread{background:#eef1ff;}
 .notif-time{font-size:.72rem;color:#bbb;margin-top:3px;}
 
 /* Toast */
@@ -138,26 +145,26 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 .row-val{font-weight:700;color:#111;}
 
 /* Upgrade notice */
-.upgrade-bar{background:#e7f3ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;margin-bottom:14px;font-size:.82rem;color:#1e40af;text-align:center;}
-.upgrade-bar a{color:#1877f2;font-weight:700;}
+.upgrade-bar{background:#eaedff;border:1px solid #b8c5ff;border-radius:8px;padding:12px;margin-bottom:14px;font-size:.82rem;color:#1A3A8F;text-align:center;}
+.upgrade-bar a{color:#1A56DB;font-weight:700;}
 
 /* ── EXTRA LEGACY-STYLE FEATURES ── */
 .tab-actions{display:-webkit-box;display:-webkit-flex;display:flex;gap:8px;margin-bottom:12px;}
 .tab-actions .btn{margin-bottom:0;padding:10px 12px;font-size:.84rem;}
 .tx-row{border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:10px;background:#fff;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;gap:12px;}
 .tx-left{display:-webkit-box;display:-webkit-flex;display:flex;gap:10px;-webkit-box-align:start;-webkit-align-items:flex-start;align-items:flex-start;}
-.tx-ico{width:34px;height:34px;border-radius:50%;background:#e7f3ff;color:#1877f2;font-size:16px;font-weight:700;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;}
+.tx-ico{width:34px;height:34px;border-radius:50%;background:#eaedff;color:#1A56DB;font-size:16px;font-weight:700;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;}
 .tx-desc{font-size:.85rem;font-weight:700;color:#111;}
 .tx-date{font-size:.74rem;color:#888;margin-top:3px;}
 .tx-amt{font-size:.86rem;font-weight:900;white-space:nowrap;}
 .tx-amt.credit,.tx-amt.refund{color:#059669;}
 .tx-amt.debit{color:#dc2626;}
-.va-box{border:1px solid #dbeafe;background:#f8fbff;border-radius:8px;padding:14px;margin-bottom:12px;}
-.va-bank{font-size:.76rem;color:#1877f2;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+.va-box{border:1px solid #d0d8ff;background:#f5f6ff;border-radius:8px;padding:14px;margin-bottom:12px;}
+.va-bank{font-size:.76rem;color:#1A56DB;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
 .va-num{font-size:1.2rem;font-weight:900;color:#111;margin:5px 0;word-break:break-all;}
 .va-name{font-size:.78rem;color:#666;}
 .msg-row{padding:12px;border:1px solid #edf0f2;border-radius:8px;background:#fff;margin-bottom:10px;cursor:pointer;}
-.msg-row.unread{background:#f0f7ff;border-color:#cfe3ff;}
+.msg-row.unread{background:#eef1ff;border-color:#c7d0ff;}
 .msg-sub{font-size:.86rem;font-weight:800;color:#111;margin-bottom:4px;}
 .msg-body{font-size:.81rem;color:#555;line-height:1.55;}
 .msg-meta{font-size:.72rem;color:#999;margin-top:6px;}
@@ -176,17 +183,46 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 <div id="pg-auth" class="pg on">
 <div class="auth-wrap">
 
-  <div class="auth-logo">
-    <div class="auth-logo-box">DB</div>
-    <span class="auth-logo-name">DataBulge</span>
-    <span class="auth-logo-tag">Installment data plans &#8212; pay small small</span>
+  <!-- Hero with SVG wordmark -->
+  <div class="auth-hero">
+    <svg class="auth-wordmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" role="img" aria-label="DataBulge">
+      <style>
+        @-webkit-keyframes breathe{0%,100%{opacity:1}50%{opacity:.55}}
+        @keyframes breathe{0%,100%{opacity:1}50%{opacity:.55}}
+        .bar1{-webkit-animation:breathe 1.8s ease-in-out 0s infinite;animation:breathe 1.8s ease-in-out 0s infinite}
+        .bar2{-webkit-animation:breathe 1.8s ease-in-out .2s infinite;animation:breathe 1.8s ease-in-out .2s infinite}
+        .bar3{-webkit-animation:breathe 1.8s ease-in-out .4s infinite;animation:breathe 1.8s ease-in-out .4s infinite}
+        .bar4{-webkit-animation:breathe 1.8s ease-in-out .6s infinite;animation:breathe 1.8s ease-in-out .6s infinite}
+        @media(prefers-reduced-motion:reduce){.bar1,.bar2,.bar3,.bar4{-webkit-animation:none;animation:none}}
+      </style>
+      <!-- Icon mark -->
+      <circle cx="88" cy="80" r="52" fill="#FFFFFF" opacity=".15"/>
+      <circle cx="88" cy="80" r="42" fill="#FFFFFF"/>
+      <circle cx="88" cy="80" r="28" fill="#1A56DB"/>
+      <!-- Signal bars -->
+      <rect x="66" y="84"  width="8" height="16" rx="3" fill="#FFFFFF" class="bar1"/>
+      <rect x="78" y="76"  width="8" height="24" rx="3" fill="#FFFFFF" class="bar2"/>
+      <rect x="90" y="66"  width="8" height="34" rx="3" fill="#FFFFFF" class="bar3"/>
+      <rect x="102" y="56" width="8" height="44" rx="3" fill="#FFFFFF" class="bar4"/>
+      <!-- Anchor dot -->
+      <circle cx="50" cy="104" r="6" fill="#FFFFFF"/>
+      <!-- Divider -->
+      <line x1="152" y1="24" x2="152" y2="136" stroke="#FFFFFF" stroke-width="1" opacity=".25"/>
+      <!-- Wordmark -->
+      <text x="176" y="72" font-family="'Syne','DM Sans','Helvetica Neue',Arial,sans-serif" font-size="50" font-weight="300" fill="#FFFFFF" opacity=".9" letter-spacing="-1">data</text>
+      <text x="176" y="128" font-family="'Syne','DM Sans','Helvetica Neue',Arial,sans-serif" font-size="50" font-weight="700" fill="#FFFFFF" letter-spacing="-1">bulge</text>
+      <!-- Tagline -->
+      <text x="594" y="66" font-family="'DM Sans','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#FFFFFF" opacity=".5" text-anchor="end" letter-spacing="1.8">DATA ON YOUR</text>
+      <text x="594" y="82" font-family="'DM Sans','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#FFFFFF" opacity=".5" text-anchor="end" letter-spacing="1.8">OWN TERMS</text>
+    </svg>
+    <div class="auth-tagline">Installment data plans &mdash; pay small small</div>
   </div>
 
   <div class="auth-card">
 
     <!-- WELCOME -->
     <div id="scr-w">
-      <div class="auth-title">Welcome to DataBulge</div>
+      <div class="auth-title">Welcome back</div>
       <div class="auth-sub">Buy mobile data and pay in daily installments.</div>
       <button class="btn btn-blue" id="w-login-btn">Log In</button>
       <div class="divdr"><span>OR</span></div>
@@ -245,7 +281,7 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 
   </div><!-- /.auth-card -->
 
-  <div style="text-align:center;font-size:.73rem;color:#bbb;margin-top:20px;">DataBulge by Vortexedge Limited &middot; Nigeria</div>
+  <div style="text-align:center;font-size:1.05rem;font-weight:700;font-family:Arial,Helvetica,sans-serif;color:rgba(255,255,255,.5);margin-top:20px;padding:0 20px 8px;letter-spacing:.04em;">Start small. Stay connected.</div>
 
 </div><!-- /.auth-wrap -->
 </div><!-- /#pg-auth -->
@@ -254,7 +290,27 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 <div id="pg-app" class="pg">
 
   <div class="top-bar">
-    <div class="top-bar-title">DataBulge</div>
+    <div class="top-bar-title" style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;align-items:center;line-height:1;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" height="36" style="display:block;" aria-label="DataBulge">
+        <style>.tb1{-webkit-animation:breathe 1.8s ease-in-out 0s infinite;animation:breathe 1.8s ease-in-out 0s infinite}.tb2{-webkit-animation:breathe 1.8s ease-in-out .2s infinite;animation:breathe 1.8s ease-in-out .2s infinite}.tb3{-webkit-animation:breathe 1.8s ease-in-out .4s infinite;animation:breathe 1.8s ease-in-out .4s infinite}.tb4{-webkit-animation:breathe 1.8s ease-in-out .6s infinite;animation:breathe 1.8s ease-in-out .6s infinite}@media(prefers-reduced-motion:reduce){.tb1,.tb2,.tb3,.tb4{-webkit-animation:none;animation:none}}</style>
+        <!-- Icon mark -->
+        <circle cx="88" cy="80" r="52" fill="#FFFFFF" opacity=".15"/>
+        <circle cx="88" cy="80" r="42" fill="#FFFFFF"/>
+        <circle cx="88" cy="80" r="28" fill="#1A56DB"/>
+        <!-- Signal bars -->
+        <rect x="66" y="84"  width="8" height="16" rx="3" fill="#FFFFFF" class="tb1"/>
+        <rect x="78" y="76"  width="8" height="24" rx="3" fill="#FFFFFF" class="tb2"/>
+        <rect x="90" y="66"  width="8" height="34" rx="3" fill="#FFFFFF" class="tb3"/>
+        <rect x="102" y="56" width="8" height="44" rx="3" fill="#FFFFFF" class="tb4"/>
+        <!-- Anchor dot -->
+        <circle cx="50" cy="104" r="6" fill="#FFFFFF"/>
+        <!-- Divider -->
+        <line x1="152" y1="24" x2="152" y2="136" stroke="#FFFFFF" stroke-width="1" opacity=".25"/>
+        <!-- Wordmark -->
+        <text x="176" y="72"  font-family="'Syne','DM Sans','Helvetica Neue',Arial,sans-serif" font-size="50" font-weight="300" fill="#FFFFFF" opacity=".9" letter-spacing="-1">data</text>
+        <text x="176" y="128" font-family="'Syne','DM Sans','Helvetica Neue',Arial,sans-serif" font-size="50" font-weight="700" fill="#FFFFFF" letter-spacing="-1">bulge</text>
+      </svg>
+    </div>
     <div class="top-bar-right">
       <div class="avatar" id="av"></div>
       <button class="logout-btn" id="logout-btn">Sign out</button>
@@ -343,7 +399,6 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
     <div id="inbox-list"><div class="empty">Loading&hellip;</div></div>
   </div>
 
-  <div style="text-align:center;font-size:.73rem;color:#bbb;padding:18px 14px 22px;">&copy; Vortexedge Limited</div>
 </div><!-- /#pg-app -->
 
 <!-- FORGOT PASSWORD MODAL -->
@@ -384,8 +439,8 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
         </div>
       </div>
 
-      <div class="field" style="border:1px solid #dbeafe;border-radius:8px;padding:12px;background:#f8fbff;margin-bottom:12px;">
-        <div style="font-size:.87rem;font-weight:800;color:#1877f2;margin-bottom:6px;">&#128179; Auto-Fund</div>
+      <div class="field" style="border:1px solid #d0d8ff;border-radius:8px;padding:12px;background:#f5f6ff;margin-bottom:12px;">
+        <div style="font-size:.87rem;font-weight:800;color:#1A56DB;margin-bottom:6px;">&#128179; Auto-Fund</div>
         <p style="font-size:.76rem;color:#555;margin-bottom:10px;line-height:1.5;">This takes the stress off you &#8212; automatically charges your card to fund this plan until it&#39;s fully paid, then stops.</p>
         <div style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;gap:8px;margin-bottom:0;">
           <span style="font-size:.82rem;color:#333;font-weight:600;">Enable Auto-Fund</span>
@@ -482,7 +537,7 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
     <div class="modal-body">
       <div id="m-fund-err" class="err"></div>
       <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:0;margin-bottom:14px;border-bottom:2px solid #eee;">
-        <button id="fund-tab-va" onclick="switchFundTab('va')" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid #1877f2;color:#1877f2;font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;margin-bottom:-2px;">Bank Transfer</button>
+        <button id="fund-tab-va" onclick="switchFundTab('va')" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid #1A56DB;color:#1A56DB;font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;margin-bottom:-2px;">Bank Transfer</button>
         <button id="fund-tab-af" onclick="switchFundTab('af')" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;color:#888;font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;margin-bottom:-2px;">Auto-Fund (Card)</button>
       </div>
       <div id="fund-panel-va">
@@ -490,8 +545,8 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
         <div class="card-sub" style="margin-top:10px;line-height:1.6;">Transfer to the account above. Balance updates in under 5 minutes after a successful transfer.</div>
       </div>
       <div id="fund-panel-af" style="display:none;">
-        <div style="background:#f8fbff;border:1px solid #dbeafe;border-radius:8px;padding:12px;margin-bottom:10px;">
-          <div style="font-size:.85rem;font-weight:800;color:#1877f2;margin-bottom:6px;">&#128179; Auto-Fund via Card</div>
+        <div style="background:#f5f6ff;border:1px solid #d0d8ff;border-radius:8px;padding:12px;margin-bottom:10px;">
+          <div style="font-size:.85rem;font-weight:800;color:#1A56DB;margin-bottom:6px;">&#128179; Auto-Fund via Card</div>
           <p style="font-size:.77rem;color:#555;line-height:1.55;margin-bottom:12px;">This takes the stress off you &#8212; enter an amount, pay with your card, your account is debited on your behalf daily with that amount and your wallet is credited instantly. you can cancel anytime.</p>
           <label style="font-size:.78rem;font-weight:700;color:#333;display:block;margin-bottom:4px;">Amount to fund (&#8358;)</label>
           <input type="number" id="af-fund-amt" placeholder="e.g. 1000" style="display:block;width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:6px;font-size:.93rem;color:#111;background:#fff;outline:none;-webkit-appearance:none;margin-bottom:10px;">
@@ -1202,7 +1257,7 @@ function renderSubsList(subs, compact) {
       '</div>' +
       '<div style="min-width:100px;">' +
         '<div style="font-size:.67rem;color:#aaa;text-transform:uppercase;font-weight:700;">&#8358; Per payment</div>' +
-        '<div style="font-size:.88rem;font-weight:900;color:#1877f2;">' + fmtN(perPayment) + '</div>' +
+        '<div style="font-size:.88rem;font-weight:900;color:#1A56DB;">' + fmtN(perPayment) + '</div>' +
       '</div>';
     } else if (!isCompleted) {
       html += '<div style="min-width:100px;">' +
@@ -1223,7 +1278,7 @@ function renderSubsList(subs, compact) {
     // Action buttons
     if (isCompleted) {
       html += '<div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:7px;margin-top:4px;">' +
-        '<div style="flex:1;padding:8px 10px;background:#e0e7ff;color:#3730a3;border-radius:6px;font-size:.78rem;font-weight:700;text-align:center;">Delivered &#9989; Done</div>' +
+        '<div style="flex:1;padding:8px 10px;background:#e8eaff;color:#2A3FA3;border-radius:6px;font-size:.78rem;font-weight:700;text-align:center;">Delivered &#9989; Done</div>' +
         '<button class="pay-btn" style="flex:1;background:#e5e7eb;color:#555;" onclick="openRefundModal(\'' + esc(s.id) + '\',\'' + esc((pl.data_size||'') + ' ' + (pl.network||'')) + '\',\'' + esc(s.phone_number||'') + '\',' + paid + ')">Report Issue</button>' +
       '</div>';
     } else if ((isActive || isPending) && remaining > 0) {
@@ -1399,7 +1454,7 @@ function openSubModal(planIdx) {
 function _syncSl(slId, on) {
   var sl = $(slId);
   if (!sl) return;
-  sl.style.background = on ? '#1877f2' : '#ccc';
+  sl.style.background = on ? '#1A56DB' : '#ccc';
   if (sl.firstChild) {
     sl.firstChild.style.cssText = 'position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;-webkit-transition:.25s;transition:.25s;-webkit-transform:' + (on ? 'translateX(18px)' : 'translateX(0)') + ';transform:' + (on ? 'translateX(18px)' : 'translateX(0)') + ';';
   }
@@ -1886,12 +1941,12 @@ function switchFundTab(tab) {
   if (tab === 'va') {
     if (va) va.style.display = 'block';
     if (af) af.style.display = 'none';
-    if (tVA) { tVA.style.borderBottomColor = '#1877f2'; tVA.style.color = '#1877f2'; }
+    if (tVA) { tVA.style.borderBottomColor = '#1A56DB'; tVA.style.color = '#1A56DB'; }
     if (tAF) { tAF.style.borderBottomColor = 'transparent'; tAF.style.color = '#888'; }
   } else {
     if (va) va.style.display = 'none';
     if (af) af.style.display = 'block';
-    if (tAF) { tAF.style.borderBottomColor = '#1877f2'; tAF.style.color = '#1877f2'; }
+    if (tAF) { tAF.style.borderBottomColor = '#1A56DB'; tAF.style.color = '#1A56DB'; }
     if (tVA) { tVA.style.borderBottomColor = 'transparent'; tVA.style.color = '#888'; }
   }
 }
@@ -1945,7 +2000,7 @@ function loadDashCashflow() {
               '<span style="font-size:.93rem;font-weight:800;color:#111;">' + esc(pl.data_size || '') + ' <span class="plan-net ' + netCls(pl.network) + '">' + esc(pl.network || '') + '</span></span>' +
               '<span style="font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:10px;background:#fef3c7;color:#92400e;">' + esc(s.status) + '</span>' +
             '</div>' +
-            '<div style="background:#e5e7eb;border-radius:4px;height:6px;overflow:hidden;margin-bottom:4px;"><div style="background:#1877f2;height:100%;border-radius:4px;width:' + pct.toFixed(1) + '%;"></div></div>' +
+            '<div style="background:#e5e7eb;border-radius:4px;height:6px;overflow:hidden;margin-bottom:4px;"><div style="background:#1A56DB;height:100%;border-radius:4px;width:' + pct.toFixed(1) + '%;"></div></div>' +
             '<div style="font-size:.73rem;color:#888;">' + fmtN(paid) + ' of ' + fmtN(total) + ' paid' + (s.phone_number ? ' \u2022 ' + esc(s.phone_number) : '') + '</div>' +
           '</div>';
         }
