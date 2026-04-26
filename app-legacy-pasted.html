@@ -291,24 +291,41 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 
   <div class="top-bar">
     <div class="top-bar-title" style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;align-items:center;line-height:1;">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" height="36" style="display:block;" aria-label="DataBulge">
-        <style>.tb1{-webkit-animation:breathe 1.8s ease-in-out 0s infinite;animation:breathe 1.8s ease-in-out 0s infinite}.tb2{-webkit-animation:breathe 1.8s ease-in-out .2s infinite;animation:breathe 1.8s ease-in-out .2s infinite}.tb3{-webkit-animation:breathe 1.8s ease-in-out .4s infinite;animation:breathe 1.8s ease-in-out .4s infinite}.tb4{-webkit-animation:breathe 1.8s ease-in-out .6s infinite;animation:breathe 1.8s ease-in-out .6s infinite}@media(prefers-reduced-motion:reduce){.tb1,.tb2,.tb3,.tb4{-webkit-animation:none;animation:none}}</style>
-        <!-- Icon mark -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" height="38" style="display:block;border-radius:10px;" role="img" aria-label="DataBulge">
+        <style>
+          @-webkit-keyframes breathe{0%,100%{opacity:1}50%{opacity:.55}}
+          @keyframes breathe{0%,100%{opacity:1}50%{opacity:.55}}
+          .wm-b1{-webkit-animation:breathe 1.8s ease-in-out 0s infinite;animation:breathe 1.8s ease-in-out 0s infinite}
+          .wm-b2{-webkit-animation:breathe 1.8s ease-in-out .2s infinite;animation:breathe 1.8s ease-in-out .2s infinite}
+          .wm-b3{-webkit-animation:breathe 1.8s ease-in-out .4s infinite;animation:breathe 1.8s ease-in-out .4s infinite}
+          .wm-b4{-webkit-animation:breathe 1.8s ease-in-out .6s infinite;animation:breathe 1.8s ease-in-out .6s infinite}
+          @media(prefers-reduced-motion:reduce){.wm-b1,.wm-b2,.wm-b3,.wm-b4{-webkit-animation:none;animation:none}}
+        </style>
+        <!-- Pill background -->
+        <rect x="0" y="0" width="640" height="160" rx="24" fill="#1A56DB"/>
+        <!-- Decorative circles top-right -->
+        <circle cx="580" cy="110" r="60" fill="#FFFFFF" opacity=".05"/>
+        <circle cx="615" cy="135" r="38" fill="#FFFFFF" opacity=".05"/>
+        <!-- Icon mark: white ring -->
         <circle cx="88" cy="80" r="52" fill="#FFFFFF" opacity=".15"/>
         <circle cx="88" cy="80" r="42" fill="#FFFFFF"/>
+        <!-- Blue cutout -->
         <circle cx="88" cy="80" r="28" fill="#1A56DB"/>
         <!-- Signal bars -->
-        <rect x="66" y="84"  width="8" height="16" rx="3" fill="#FFFFFF" class="tb1"/>
-        <rect x="78" y="76"  width="8" height="24" rx="3" fill="#FFFFFF" class="tb2"/>
-        <rect x="90" y="66"  width="8" height="34" rx="3" fill="#FFFFFF" class="tb3"/>
-        <rect x="102" y="56" width="8" height="44" rx="3" fill="#FFFFFF" class="tb4"/>
+        <rect x="66" y="84"  width="8" height="16" rx="3" fill="#FFFFFF" class="wm-b1"/>
+        <rect x="78" y="76"  width="8" height="24" rx="3" fill="#FFFFFF" class="wm-b2"/>
+        <rect x="90" y="66"  width="8" height="34" rx="3" fill="#FFFFFF" class="wm-b3"/>
+        <rect x="102" y="56" width="8" height="44" rx="3" fill="#FFFFFF" class="wm-b4"/>
         <!-- Anchor dot -->
         <circle cx="50" cy="104" r="6" fill="#FFFFFF"/>
-        <!-- Divider -->
-        <line x1="152" y1="24" x2="152" y2="136" stroke="#FFFFFF" stroke-width="1" opacity=".25"/>
+        <!-- Vertical divider -->
+        <line x1="152" y1="24" x2="152" y2="136" stroke="#FFFFFF" stroke-width="1" opacity=".2"/>
         <!-- Wordmark -->
-        <text x="176" y="72"  font-family="'Syne','DM Sans','Helvetica Neue',Arial,sans-serif" font-size="50" font-weight="300" fill="#FFFFFF" opacity=".9" letter-spacing="-1">data</text>
+        <text x="176" y="72" font-family="'Syne','DM Sans','Helvetica Neue',Arial,sans-serif" font-size="50" font-weight="300" fill="#FFFFFF" opacity=".9" letter-spacing="-1">data</text>
         <text x="176" y="128" font-family="'Syne','DM Sans','Helvetica Neue',Arial,sans-serif" font-size="50" font-weight="700" fill="#FFFFFF" letter-spacing="-1">bulge</text>
+        <!-- Tagline -->
+        <text x="594" y="66" font-family="'DM Sans','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#FFFFFF" opacity=".5" text-anchor="end" letter-spacing="1.8">DATA ON YOUR</text>
+        <text x="594" y="82" font-family="'DM Sans','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#FFFFFF" opacity=".5" text-anchor="end" letter-spacing="1.8">OWN TERMS</text>
       </svg>
     </div>
     <div class="top-bar-right">
@@ -397,6 +414,7 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
       <button class="btn btn-blue" id="compose-btn-open">New Message</button>
     </div>
     <div id="inbox-list"><div class="empty">Loading&hellip;</div></div>
+    <div style="text-align:center;padding:18px 14px 8px;font-size:.73rem;color:#bbb;">&#169; 2026 Vortexedge Limited. All rights reserved.</div>
   </div>
 
 </div><!-- /#pg-app -->
@@ -441,7 +459,7 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 
       <div class="field" style="border:1px solid #d0d8ff;border-radius:8px;padding:12px;background:#f5f6ff;margin-bottom:12px;">
         <div style="font-size:.87rem;font-weight:800;color:#1A56DB;margin-bottom:6px;">&#128179; Auto-Fund</div>
-        <p style="font-size:.76rem;color:#555;margin-bottom:10px;line-height:1.5;">This takes the stress off you &#8212; automatically charges your card to fund this plan until it&#39;s fully paid, then stops.</p>
+        <p style="font-size:.76rem;color:#555;margin-bottom:10px;line-height:1.5;">This takes the stress off you &#8212; enter an amount, pay with your card, your account is debited on your behalf daily with that amount and your wallet is credited instantly. you can cancel anytime.</p>
         <div style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;gap:8px;margin-bottom:0;">
           <span style="font-size:.82rem;color:#333;font-weight:600;">Enable Auto-Fund</span>
           <label style="position:relative;display:inline-block;width:40px;height:22px;-webkit-flex-shrink:0;flex-shrink:0;">
@@ -530,7 +548,8 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 </div>
 
 
-<!-- FUND WALLET MODAL -->
+
+
 <div class="modal" id="m-fund">
   <div class="modal-box">
     <div class="modal-hdr"><div class="modal-title">Fund Account</div><button class="modal-x" id="m-fund-x">&#215;</button></div>
@@ -554,7 +573,7 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
           <div id="af-fund-err" class="err"></div>
           <button class="btn btn-blue" id="af-fund-btn" style="width:100%;margin:0;">Pay with Card</button>
         </div>
-        <div class="card-sub" style="text-align:center;line-height:1.5;">..................Your card details are secured by Paystack..................</div>
+        <div class="card-sub" style="text-align:center;line-height:1.5;">Your card details are secured by Paystack.</div>
       </div>
     </div>
     <div class="modal-foot"></div>
