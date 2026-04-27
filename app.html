@@ -90,46 +90,51 @@ END SUPABASE NOTES
 <script>
 (function(){
   try {
-    var p = (location.pathname || '').toLowerCase();
-    if (p.indexOf('app-legacy-pasted.html') !== -1) return;
+    var path = (location.pathname || '').toLowerCase();
+    if (path.indexOf('app-legacy-pasted.html') !== -1) return;
+    if (/[?&]modern=1/i.test(location.search || '')) return;
+    if (/[?&]legacy=0/i.test(location.search || '')) return;
 
     var ua = navigator.userAgent || '';
     var needsLegacy = false;
 
-    // Weak/old browser support check
+    // Old/weak browser engines: send to the lightweight legacy file.
     if (typeof Promise === 'undefined' || typeof fetch === 'undefined') needsLegacy = true;
     try {
       if (typeof CSS === 'undefined' || !CSS.supports || !CSS.supports('color','var(--x)')) needsLegacy = true;
     } catch (e) { needsLegacy = true; }
 
-    // Android 10 and below should use legacy. Android 11+ stays on this app.
+    // Android 10 and below = legacy. Android 11+ stays on app.html.
     var android = ua.match(/Android\s([0-9]+)(?:\.([0-9]+))?/i);
     if (android) {
       var androidMajor = parseInt(android[1], 10) || 0;
-      if (androidMajor < 11) needsLegacy = true;
+      if (androidMajor > 0 && androidMajor < 11) needsLegacy = true;
     }
 
-    // Very old Chrome/WebView should use legacy.
+    // Very old Chrome/WebView = legacy.
     var chrome = ua.match(/(?:Chrome|CrMo|CriOS)\/([0-9]+)/i);
     if (chrome && parseInt(chrome[1], 10) < 70) needsLegacy = true;
 
-    // Network capacity: 2G/slow-2G goes legacy. 3G, 4G, 5G stay on this app.
+    // Network capacity: slow-2G/2G = legacy. 3G, 4G, 5G stay on app.html.
     try {
       var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
       if (conn && (conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g')) needsLegacy = true;
     } catch (e2) {}
 
-    // Very low memory devices should use legacy.
+    // Very low RAM devices = legacy.
     try {
       if (navigator.deviceMemory && navigator.deviceMemory < 1) needsLegacy = true;
     } catch (e3) {}
 
     if (needsLegacy) {
-      location.replace('app-legacy-pasted.html');
+      var target = 'app-legacy-pasted.html' + (location.search || '') + (location.hash || '');
+      location.replace(target);
     }
   } catch (ignore) {}
 })();
 </script>
+<!-- DataBulge: legacy auto-redirect removed. This app file stays on app.html only. -->
+
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 <title>DataBulge — Installment Data Plans by Vortexedge Limited</title>
@@ -2325,7 +2330,7 @@ function _makeSupabaseClient() {
     // Fallback: minimal options for very old WebViews (Huawei EMUI 9-10)
     try {
       return window.supabase.createClient(SUPA_URL, ANON_KEY, {
-        auth: { persistSession: false, autoRefreshToken: false, flowType: 'implicit' }
+        auth: { persistSession: true, autoRefreshToken: true, storage: _DB_STORAGE, storageKey: 'databulge_sb_auth', detectSessionInUrl: true, flowType: 'implicit' }
       });
     } catch(e2) {
       console.error('[Auth] createClient minimal also failed:', e2);
@@ -2342,8 +2347,13 @@ function _wireAuthEvents() {
   if (!sb || !sb.auth) return;
   sb.auth.onAuthStateChange(function(event, session) {
     if (event === 'PASSWORD_RECOVERY') {
-      // Recovery links should open index.html, not app.html
-      location.replace('index.html' + window.location.hash + window.location.search);
+      // Handle password recovery inside app.html. Do not redirect away from app.html.
+      me = session ? session.user : me;
+      if (session && session.access_token) {
+        window._recoveryAccessToken = session.access_token;
+        window._recoveryRefreshToken = session.refresh_token || '';
+      }
+      if (typeof showResetPasswordScreen === 'function') showResetPasswordScreen();
       return;
     }
 
@@ -2360,24 +2370,36 @@ function _wireAuthEvents() {
       return;
     }
 
-    // SIGNED_OUT — debounce 1.5s in case TOKEN_REFRESHED follows immediately
+    // SIGNED_OUT — debounce 4s: Supabase fires SIGNED_OUT during token refresh
+    // on GitHub Pages / static hosting. We do TWO verified getSession checks
+    // before redirecting so a token-refresh race never boots the user out.
     if (event === 'SIGNED_OUT') {
       if (_signedOutTimer) clearTimeout(_signedOutTimer);
       _signedOutTimer = setTimeout(function() {
         _signedOutTimer = null;
-        // Double-check: is there actually no session?
+        // First check — wait for any in-flight token refresh to settle
         sb.auth.getSession().then(function(r) {
           var stillHasSession = r && r.data && r.data.session && r.data.session.user;
-          if (!stillHasSession) {
-            if (typeof toast === 'function') toast('Your session expired. Please log in again.', 'info');
-            me = null; myData = null; walBal = 0;
-            setTimeout(function(){ location.replace('index.html'); }, 600);
-          }
+          if (stillHasSession) return; // session came back — do nothing
+          // Second check after another 2s to be absolutely sure
+          setTimeout(function() {
+            sb.auth.getSession().then(function(r2) {
+              var stillHas2 = r2 && r2.data && r2.data.session && r2.data.session.user;
+              if (!stillHas2) {
+                if (typeof toast === 'function') toast('Your session expired. Please log in again.', 'info');
+                me = null; myData = null; walBal = 0;
+                if (typeof stopRealtime === 'function') { try { stopRealtime(); } catch(e) {} }
+                if (typeof checkLandingGate === 'function') checkLandingGate(false);
+                if (typeof showWelcomeScreen === 'function') showWelcomeScreen();
+              }
+            }).catch(function() {
+              // Network error — do NOT log out; session may still be valid
+            });
+          }, 2000);
         }).catch(function() {
-          me = null; myData = null; walBal = 0;
-          location.replace('index.html');
+          // Network error during first check — do NOT log out
         });
-      }, 1500);
+      }, 4000);
     }
   });
 }
@@ -2445,7 +2467,8 @@ function _initApp() {
     _wireAuthEvents();
   } catch(e) {
     console.error('[Auth] createClient failed:', e);
-    location.replace('index.html');
+    if (typeof toast === 'function') toast('App startup error. Please refresh this page.', 'error');
+    if (typeof checkLandingGate === 'function') checkLandingGate(false);
     return;
   }
 
@@ -2528,14 +2551,15 @@ function _initApp() {
         checkLandingGate(true);
         bootApp().catch(function(err) {
           console.warn('[Auth] bootApp error:', String(err));
-          location.replace('index.html');
+          if (typeof toast === 'function') toast('Could not load dashboard. Please check your connection and try again.', 'warn');
+          checkLandingGate(false);
         });
 
       } else if (!_sessionRetried) {
-        // No session on first try — could be DB just waking up.
-        // Wait 4 seconds and retry once before concluding logged out.
+        // No session on first try — could be DB just waking up on GitHub Pages.
+        // Wait 5 seconds and retry once before concluding logged out.
         _sessionRetried = true;
-        console.log('[Auth] No session on first check — retrying in 4s (DB may be waking up)...');
+        console.log('[Auth] No session on first check — retrying in 5s (DB may be waking up)...');
         setTimeout(function() {
           sb.auth.getSession().then(function(result2) {
             var session2 = (result2 && result2.data && result2.data.session) || null;
@@ -2547,26 +2571,32 @@ function _initApp() {
               }
               checkLandingGate(true);
               bootApp().catch(function(err) {
-                location.replace('index.html');
+                console.warn('[Auth] bootApp retry error:', String(err));
+                checkLandingGate(false);
               });
             } else {
-              console.log('[Auth] No session after retry — redirecting to login');
-              location.replace('index.html');
+              console.log('[Auth] No session after retry — showing login');
+              checkLandingGate(false);
             }
-          }).catch(function() { location.replace('index.html'); });
-        }, 4000);
+          }).catch(function() {
+            // Network error on retry — stay on page, do NOT redirect to index.
+            console.warn('[Auth] Network error on session retry — staying on page');
+            checkLandingGate(false);
+          });
+        }, 5000);
 
       } else {
-        location.replace('index.html');
+        // Both retries exhausted, no session confirmed — show login
+        checkLandingGate(false);
       }
 
     }).catch(function(err) {
       var errStr = String(err);
       console.warn('[Auth] getSession error:', errStr);
-      // If it looks like a network/DB error rather than auth error, retry once
-      if (!_sessionRetried && (errStr.indexOf('fetch') !== -1 || errStr.indexOf('network') !== -1 || errStr.indexOf('timeout') !== -1)) {
+      // Network/DB error — retry once. Never redirect on a network failure.
+      if (!_sessionRetried) {
         _sessionRetried = true;
-        console.log('[Auth] Network error on session check — retrying in 5s...');
+        console.log('[Auth] Network error on session check — retrying in 6s...');
         setTimeout(function() {
           sb.auth.getSession().then(function(r) {
             var s = (r && r.data && r.data.session) || null;
@@ -2574,12 +2604,19 @@ function _initApp() {
               me = s.user;
               if (s.access_token) { _cachedToken = s.access_token; _tokenExpiry = Date.now() + 9 * 60 * 1000; }
               checkLandingGate(true);
-              bootApp().catch(function() { location.replace('index.html'); });
-            } else { location.replace('index.html'); }
-          }).catch(function() { location.replace('index.html'); });
-        }, 5000);
+              bootApp().catch(function(err) { console.warn('[Auth] bootApp network retry error:', String(err)); checkLandingGate(false); });
+            } else {
+              // Genuinely no session — show login screen but don't force-redirect
+              checkLandingGate(false);
+            }
+          }).catch(function() {
+            // Still failing — show login screen, do NOT redirect
+            console.warn('[Auth] Persistent network error — staying on page');
+            checkLandingGate(false);
+          });
+        }, 6000);
       } else {
-        location.replace('index.html');
+        checkLandingGate(false);
       }
     });
   }
@@ -2974,7 +3011,8 @@ async function doLogout(){
   try { _safeStorage.remove('sb_session_v2'); } catch(e) {}
   me=null; myData=null; walBal=0;
   toast('Signed out','info');
-  setTimeout(function(){ location.replace('index.html'); }, 400);
+  if (typeof checkLandingGate === 'function') checkLandingGate(false);
+  if (typeof showWelcomeScreen === 'function') showWelcomeScreen();
 }
 
 // ── BOOT APP ──
@@ -4874,8 +4912,9 @@ console.log('[DataBulge v3.0] All upgrades loaded successfully.');
 // Logged-out → show landing page; clicking "Open App" shows auth screen
 
 function openApp() {
-  // No session — redirect to auth page
-  location.replace('index.html');
+  // Stay on app.html and show the login/signup area.
+  if (typeof checkLandingGate === 'function') checkLandingGate(false);
+  if (typeof showWelcomeScreen === 'function') showWelcomeScreen();
 }
 
 // __ UNUSED_PLACEHOLDER_
@@ -4884,12 +4923,16 @@ function openApp() {
 function checkLandingGate(hasSession) {
   var landing = document.getElementById('landing-page');
   var authScr = document.getElementById('auth-screen');
+  var appShell = document.getElementById('app');
   if (hasSession) {
-    // Logged in — skip landing, go straight to app
     if (landing) landing.style.display = 'none';
     if (authScr) authScr.style.display = '';
+    return;
   }
-  // Logged out — landing stays visible (it's the default), auth stays hidden
+  // Logged out or expired session: stay on app.html and show auth/landing instead of redirecting.
+  if (appShell) appShell.style.display = 'none';
+  if (landing) landing.style.display = '';
+  if (authScr) authScr.style.display = '';
 }
 </script>
 
