@@ -2337,26 +2337,47 @@ function _makeSupabaseClient() {
 // ── AUTH EVENT WIRING ─────────────────────────────────────────────────
 // Must be called immediately after createClient so the PASSWORD_RECOVERY
 // event from onAuthStateChange fires before any other code runs.
+var _signedOutTimer = null; // debounce SIGNED_OUT — Supabase fires it during token refresh
 function _wireAuthEvents() {
   if (!sb || !sb.auth) return;
   sb.auth.onAuthStateChange(function(event, session) {
     if (event === 'PASSWORD_RECOVERY') {
       // Recovery links should open index.html, not app.html
       location.replace('index.html' + window.location.hash + window.location.search);
+      return;
     }
-    // SIGNED_IN after token_refreshed: refresh cached token silently
+
+    // TOKEN_REFRESHED or SIGNED_IN cancel any pending SIGNED_OUT redirect
     if (event === 'TOKEN_REFRESHED' && session && session.access_token) {
       _cachedToken  = session.access_token;
       _tokenExpiry  = Date.now() + 9 * 60 * 1000;
+      if (_signedOutTimer) { clearTimeout(_signedOutTimer); _signedOutTimer = null; }
+      return;
     }
-    // SIGNED_OUT from another tab or server-side revoke
+
+    if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && session.user) {
+      if (_signedOutTimer) { clearTimeout(_signedOutTimer); _signedOutTimer = null; }
+      return;
+    }
+
+    // SIGNED_OUT — debounce 1.5s in case TOKEN_REFRESHED follows immediately
     if (event === 'SIGNED_OUT') {
-      if (me) {
-        // Unexpected sign-out (session expired or revoked)
-        if (typeof toast === 'function') toast('Your session expired. Please log in again.', 'info');
-        me = null; myData = null; walBal = 0;
-        setTimeout(function(){ location.replace('index.html'); }, 800);
-      }
+      if (_signedOutTimer) clearTimeout(_signedOutTimer);
+      _signedOutTimer = setTimeout(function() {
+        _signedOutTimer = null;
+        // Double-check: is there actually no session?
+        sb.auth.getSession().then(function(r) {
+          var stillHasSession = r && r.data && r.data.session && r.data.session.user;
+          if (!stillHasSession) {
+            if (typeof toast === 'function') toast('Your session expired. Please log in again.', 'info');
+            me = null; myData = null; walBal = 0;
+            setTimeout(function(){ location.replace('index.html'); }, 600);
+          }
+        }).catch(function() {
+          me = null; myData = null; walBal = 0;
+          location.replace('index.html');
+        });
+      }, 1500);
     }
   });
 }
@@ -2948,7 +2969,9 @@ async function doSignup(){
 
 async function doLogout(){
   stopRealtime();
+  if (_signedOutTimer) { clearTimeout(_signedOutTimer); _signedOutTimer = null; }
   try { await sb.auth.signOut(); } catch(e) {}
+  try { _safeStorage.remove('sb_session_v2'); } catch(e) {}
   me=null; myData=null; walBal=0;
   toast('Signed out','info');
   setTimeout(function(){ location.replace('index.html'); }, 400);
@@ -4699,9 +4722,8 @@ window.renderSubCards = function(data, cid) {
 // Override localStorage usage in Supabase after client init
 var _patchSupabaseStorage = function() {
   if (!window.sb || !window.sb.auth) return;
-  // Patch the auth state change listener to persist session manually
   window.sb.auth.onAuthStateChange(function(event, session) {
-    if (event === 'SIGNED_IN' && session) {
+    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
       try {
         _safeStorage.set('sb_session_v2', JSON.stringify({
           access_token: session.access_token,
@@ -4710,9 +4732,9 @@ var _patchSupabaseStorage = function() {
           user: session.user
         }));
       } catch(e) {}
-    } else if (event === 'SIGNED_OUT') {
-      _safeStorage.remove('sb_session_v2');
     }
+    // Do NOT clear storage on SIGNED_OUT — Supabase fires it during token refresh.
+    // The main _wireAuthEvents handler does a verified getSession() check before redirecting.
   });
 };
 
