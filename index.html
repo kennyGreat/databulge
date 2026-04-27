@@ -1338,7 +1338,21 @@ html, body {
 </head>
 <body>
 
-
+<!-- Unregister any stale service worker from old deployments and clear their caches -->
+<script>
+(function(){
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+      regs.forEach(function(reg) { reg.unregister(); });
+    });
+    if (window.caches) {
+      caches.keys().then(function(keys) {
+        keys.forEach(function(k) { caches.delete(k); });
+      });
+    }
+  }
+})();
+</script>
 
 <div id="toast-wrap"></div>
 
@@ -1879,29 +1893,39 @@ function _makeSupabaseClient() {
 // ── AUTH EVENT WIRING ─────────────────────────────────────────────────
 // Must be called immediately after createClient so the PASSWORD_RECOVERY
 // event from onAuthStateChange fires before any other code runs.
+var _authRedirected = false; // prevent double-redirect race
 function _wireAuthEvents() {
   if (!sb || !sb.auth) return;
   sb.auth.onAuthStateChange(function(event, session) {
     if (event === 'PASSWORD_RECOVERY') {
+      // Password reset link — stay on auth page, show reset screen
       me = session ? session.user : null;
       if (session && session.access_token) {
         window._recoveryAccessToken  = session.access_token;
         window._recoveryRefreshToken = session.refresh_token || '';
       }
-      var appEl  = document.getElementById('app');
-      var authEl = document.getElementById('auth-screen');
-      if (appEl)  appEl.style.display  = 'none';
-      if (authEl) authEl.style.display = 'flex';
       showResetPasswordScreen();
+      return;
     }
-    // SIGNED_IN after token_refreshed: refresh cached token silently
+
+    if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && session.user) {
+      // User is authenticated — send to app immediately
+      if (!_authRedirected) {
+        _authRedirected = true;
+        location.replace('app.html');
+      }
+      return;
+    }
+
     if (event === 'TOKEN_REFRESHED' && session && session.access_token) {
       _cachedToken  = session.access_token;
       _tokenExpiry  = Date.now() + 9 * 60 * 1000;
+      return;
     }
-    // SIGNED_OUT from another tab or server-side revoke
+
     if (event === 'SIGNED_OUT') {
       me = null;
+      _authRedirected = false;
       try { showWelcomeScreen(); } catch(e) {}
     }
   });
@@ -2035,10 +2059,8 @@ function _initApp() {
   }
 
   // ── PATH 3: Normal boot — existing session or fresh visitor ──
-// Landing gate: show landing if no session, skip to app if logged in
-  // Retry-aware session boot — handles DB wake-up delay on Supabase free tier.
-  // If getSession fails or returns no session, wait 4 seconds and try once more
-  // before giving up and showing the login screen.
+// onAuthStateChange handles the SIGNED_IN case — _tryGetSession is the fallback
+// for browsers/environments where the event fires late or not at all.
   var _sessionRetried = false;
   function _tryGetSession() {
     sb.auth.getSession().then(function(result) {
@@ -2046,35 +2068,30 @@ function _initApp() {
       var session = data.session || null;
 
       if (session && session.user) {
-        // Valid session — boot normally
-        me = session.user;
-        if (session.access_token) {
-          _cachedToken = session.access_token;
-          _tokenExpiry = Date.now() + 9 * 60 * 1000;
+        // Valid session found — redirect (unless onAuthStateChange already did)
+        if (!_authRedirected) {
+          _authRedirected = true;
+          location.replace('app.html');
         }
-        location.replace('app.html');
 
       } else if (!_sessionRetried) {
         // No session on first try — could be DB just waking up.
-        // Wait 4 seconds and retry once before concluding logged out.
+        // Wait 2 seconds and retry once before concluding logged out.
         _sessionRetried = true;
-        console.log('[Auth] No session on first check — retrying in 4s (DB may be waking up)...');
         setTimeout(function() {
+          if (_authRedirected) return; // onAuthStateChange already handled it
           sb.auth.getSession().then(function(result2) {
             var session2 = (result2 && result2.data && result2.data.session) || null;
             if (session2 && session2.user) {
-              me = session2.user;
-              if (session2.access_token) {
-                _cachedToken = session2.access_token;
-                _tokenExpiry = Date.now() + 9 * 60 * 1000;
+              if (!_authRedirected) {
+                _authRedirected = true;
+                location.replace('app.html');
               }
-              location.replace('app.html');
             } else {
-              console.log('[Auth] No session after retry — showing login');
               showWelcomeScreen();
             }
           }).catch(function() { showWelcomeScreen(); });
-        }, 4000);
+        }, 2000);
 
       } else {
         showWelcomeScreen();
@@ -2083,20 +2100,17 @@ function _initApp() {
     }).catch(function(err) {
       var errStr = String(err);
       console.warn('[Auth] getSession error:', errStr);
-      // If it looks like a network/DB error rather than auth error, retry once
       if (!_sessionRetried && (errStr.indexOf('fetch') !== -1 || errStr.indexOf('network') !== -1 || errStr.indexOf('timeout') !== -1)) {
         _sessionRetried = true;
-        console.log('[Auth] Network error on session check — retrying in 5s...');
         setTimeout(function() {
+          if (_authRedirected) return;
           sb.auth.getSession().then(function(r) {
             var s = (r && r.data && r.data.session) || null;
             if (s && s.user) {
-              me = s.user;
-              if (s.access_token) { _cachedToken = s.access_token; _tokenExpiry = Date.now() + 9 * 60 * 1000; }
-              location.replace('app.html');
+              if (!_authRedirected) { _authRedirected = true; location.replace('app.html'); }
             } else { showWelcomeScreen(); }
           }).catch(function() { showWelcomeScreen(); });
-        }, 5000);
+        }, 3000);
       } else {
         showWelcomeScreen();
       }
