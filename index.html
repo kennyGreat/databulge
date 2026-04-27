@@ -1436,7 +1436,7 @@ html, body {
      MAIN APP
 ══════════════════════════════════════ -->
 
-<div id="app">
+<div id="app" style="display:none;">
   <!-- NAV -->
   <nav>
     <div class="nav-logo">
@@ -1920,7 +1920,7 @@ html, body {
         <div id="af-fund-err" class="hint coral hide"></div>
         <button class="btn btn-primary" onclick="launchAutoFundCard()" style="width:100%;margin-top:4px;">Pay with Card</button>
       </div>
-      <p style="font-size:.72rem;color:var(--text2);text-align:center;line-height:1.5;">Your card details are secured by Paystack.</p>
+      <p style="font-size:.72rem;color:var(--text2);text-align:center;line-height:1.5;">Your card details are secured.</p>
       <div class="modal-acts" style="margin-top:10px;">
         <button class="btn btn-outline" onclick="closeM('m-fund')">Cancel</button>
       </div>
@@ -4979,10 +4979,14 @@ function openApp() {
     lp.style.opacity = '0';
     setTimeout(function(){
       lp.style.display = 'none';
+      var appScr = document.getElementById('app');
+      if (appScr) appScr.style.display = 'none';
       if (authScr) authScr.style.display = '';
       if (typeof showWelcomeScreen === 'function') showWelcomeScreen();
     }, 250);
   } else {
+    var appScr2 = document.getElementById('app');
+    if (appScr2) appScr2.style.display = 'none';
     if (authScr) authScr.style.display = '';
     if (typeof showWelcomeScreen === 'function') showWelcomeScreen();
   }
@@ -5143,6 +5147,16 @@ self.addEventListener('fetch', function(e){
 (function(){
   function byId(id){ return document.getElementById(id); }
   function showScreen(id){
+    /* AUTH VISIBILITY LOCK:
+       Keep the main app completely hidden any time an auth screen is shown.
+       This mirrors the working auth/app separation in index (46)(1).html and
+       prevents the dashboard from appearing behind login/signup/reset screens
+       before sign-in or after sign-out. */
+    var authScr = byId('auth-screen');
+    var appScr  = byId('app');
+    if (appScr) appScr.style.display = 'none';
+    if (authScr && authScr.style.display === 'none') authScr.style.display = '';
+
     var screens=['scr-w','scr-l','scr-s','reset-password-screen'];
     for(var i=0;i<screens.length;i++){
       var el=byId(screens[i]);
