@@ -40,6 +40,8 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 .btn{display:block;width:100%;padding:12px;border:none;border-radius:6px;font-size:.97rem;font-weight:700;cursor:pointer;text-align:center;-webkit-appearance:none;margin-bottom:10px;}
 .btn-blue{background:#1A56DB;color:#fff;}
 .btn-lite{background:#eaedff;color:#1A56DB;}
+.btn-google{background:#fff;color:#111;border:1.5px solid #ddd;display:block;}
+.btn-google span{font-weight:900;color:#1A56DB;margin-right:6px;}
 .btn:disabled{opacity:.6;cursor:default;}
 .divdr{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;gap:8px;margin:12px 0;}
 .divdr:before,.divdr:after{content:'';-webkit-box-flex:1;-webkit-flex:1;flex:1;height:1px;background:#ddd;}
@@ -227,6 +229,7 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
       <div class="auth-sub">Buy mobile data and pay in daily installments.</div>
       <button class="btn btn-blue" id="w-login-btn">Log In</button>
       <div class="divdr"><span>OR</span></div>
+      <button class="btn btn-google" id="w-google-btn"><span>G</span> Continue with Google</button>
       <button class="btn btn-lite" id="w-signup-btn">Create New Account</button>
     </div>
 
@@ -242,6 +245,7 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
       </div>
       <button class="forgot-btn" id="l-forgot-btn">Forgot password?</button>
       <button class="btn btn-blue" id="l-btn">Log In</button>
+      <button class="btn btn-google" id="l-google-btn"><span>G</span> Continue with Google</button>
       <div class="link-row">No account? <button class="txt-link" id="l-to-s">Create one</button></div>
     </div>
 
@@ -264,6 +268,7 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
       </div>
       <div id="s-terms-err" class="terms-err">Please accept the Terms &amp; Conditions.</div>
       <button class="btn btn-blue" id="s-btn">Create Account</button>
+      <button class="btn btn-google" id="s-google-btn"><span>G</span> Continue with Google</button>
       <div class="link-row">Have an account? <button class="txt-link" id="s-to-l">Log In</button></div>
     </div>
 
@@ -1934,7 +1939,7 @@ function _initSbClient() {
   if (!window.supabase || !window.supabase.createClient) return;
   try {
     _sb = window.supabase.createClient(SUPA_URL, ANON_KEY, {
-      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: true, flowType: 'implicit' }
     });
     _sb.auth.onAuthStateChange(function(event, session) {
       if (event === 'PASSWORD_RECOVERY') {
@@ -1945,29 +1950,93 @@ function _initSbClient() {
         showPage('auth');
         showScreen('scr-r');
       }
+      if (event === 'SIGNED_IN' && session && session.access_token && (!gUser || !gUser.id)) {
+        _setSession({ access_token: session.access_token, refresh_token: session.refresh_token || '', expires_in: 3600, user: session.user });
+        bootApp();
+      }
     });
   } catch(e) { /* SDK not available — hash parsing handles recovery */ }
 }
 
+function _parsePairs(raw) {
+  var out = {}, pairs = (raw || '').replace(/^#|^\?/, '').split('&'), i, eq, k, v;
+  for (i = 0; i < pairs.length; i++) {
+    eq = pairs[i].indexOf('=');
+    if (eq > -1) {
+      k = decodeURIComponent(pairs[i].slice(0, eq));
+      v = decodeURIComponent(pairs[i].slice(eq + 1));
+      out[k] = v;
+    }
+  }
+  return out;
+}
+
+function doGoogleLogin(btnId) {
+  var btn = $(btnId);
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span>G</span> Connecting…'; }
+  _initSbClient();
+  if (_sb && _sb.auth && _sb.auth.signInWithOAuth) {
+    _sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + window.location.pathname,
+        queryParams: { access_type: 'offline', prompt: 'consent' }
+      }
+    }).then(function(r) {
+      if (r && r.error) {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<span>G</span> Continue with Google'; }
+        toast('Google sign-in failed: ' + (r.error.message || 'Try again.'));
+      }
+    }).catch(function() {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<span>G</span> Continue with Google'; }
+      toast('Google sign-in failed. Please try again.');
+    });
+    return;
+  }
+  // Fallback for older WebViews: direct Supabase OAuth URL.
+  window.location.href = AUTH + '/authorize?provider=google&redirect_to=' + encodeURIComponent(window.location.origin + window.location.pathname);
+}
+
+function parseOAuthHash() {
+  var raw = (window.location.hash || '').replace(/^#/, '');
+  if (!raw || raw.indexOf('access_token=') === -1 || raw.indexOf('type=recovery') !== -1) return false;
+  var p = _parsePairs(raw);
+  if (!p.access_token) return false;
+  gToken = p.access_token;
+  gRefresh = p.refresh_token || '';
+  gExpiry = Date.now() + ((parseInt(p.expires_in, 10) || 3600) * 1000);
+  try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
+  xhr('GET', AUTH + '/user',
+    { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + gToken },
+    null,
+    function(err, res) {
+      if (!err && res && res.ok && res.data) {
+        gUser = res.data;
+        _store.set('db_sess', JSON.stringify({ at: gToken, rt: gRefresh, ex: gExpiry, user: gUser }));
+        bootApp();
+      } else {
+        _clearSession();
+        showPage('auth');
+        showScreen('scr-l');
+        toast('Google sign-in could not be completed. Try again.');
+      }
+    }
+  );
+  return true;
+}
+
 function parseHash() {
-  var result = { isRecovery: false, at: '', rt: '' };
+  var result = { isRecovery: false, at: '', rt: '', pending: false };
 
   // 1. Hash fragment — implicit flow (Supabase default)
   var raw = (window.location.hash || '').replace(/^#/, '');
   if (raw) {
-    var params = {}, pairs = raw.split('&'), i, eq, k, v;
-    for (i = 0; i < pairs.length; i++) {
-      eq = pairs[i].indexOf('=');
-      if (eq > -1) {
-        k = decodeURIComponent(pairs[i].slice(0, eq));
-        v = decodeURIComponent(pairs[i].slice(eq + 1));
-        params[k] = v;
-      }
-    }
-    if (params.type === 'recovery' && params.access_token) {
+    var params = _parsePairs(raw);
+    if (params.type === 'recovery') {
       result.isRecovery = true;
-      result.at = params.access_token;
+      result.at = params.access_token || '';
       result.rt = params.refresh_token || '';
+      if (!result.at) result.pending = true;
     }
   }
 
@@ -1978,29 +2047,60 @@ function parseHash() {
         qs.indexOf('error_code=otp_expired') !== -1 ||
         qs.indexOf('code=') !== -1) {
       result.isRecovery = true;
+      result.pending = true;
     }
   }
 
-  // 3. Clean up URL bar
-  if (result.isRecovery) {
-    try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
-  }
+  if (!result.isRecovery) return false;
 
-  // 4. Act on recovery
-  if (result.isRecovery) {
-    gRecovAT = result.at;
-    gRecovRT = result.rt;
+  function showRecoveryScreen(hasValidToken) {
     showPage('auth');
     showScreen('scr-r');
+    if (!hasValidToken) {
+      var exp = $('r-exp');
+      if (exp) exp.style.display = 'block';
+    }
+  }
+
+  // 3. Valid implicit recovery link with tokens
+  if (result.at) {
+    gRecovAT = result.at;
+    gRecovRT = result.rt;
+    try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
+    if (_sb && _sb.auth && _sb.auth.setSession && gRecovRT) {
+      _sb.auth.setSession({ access_token: gRecovAT, refresh_token: gRecovRT }).then(function(){ showRecoveryScreen(true); }).catch(function(){ showRecoveryScreen(true); });
+    } else {
+      showRecoveryScreen(true);
+    }
     return true;
   }
-  return false;
+
+  // 4. PKCE/query recovery: only show usable reset screen after Supabase exchanges the link for a session.
+  if (_sb && _sb.auth && _sb.auth.getSession) {
+    _sb.auth.getSession().then(function(r) {
+      var session = (r && r.data) ? r.data.session : null;
+      if (session && session.access_token) {
+        gRecovAT = session.access_token;
+        gRecovRT = session.refresh_token || '';
+        try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
+        showRecoveryScreen(true);
+      } else {
+        showRecoveryScreen(false);
+      }
+    }).catch(function(){ showRecoveryScreen(false); });
+  } else {
+    showRecoveryScreen(false);
+  }
+  return true;
 }
 
 /* ── INIT ───────────────────────────────────────────────────── */
 function init() {
   // Init Supabase SDK for onAuthStateChange PASSWORD_RECOVERY event
   _initSbClient();
+
+  // Check for Google OAuth callback first, then recovery link.
+  if (parseOAuthHash()) return; // Google login callback detected — boot after user is loaded
 
   // Check for recovery in URL hash / query string
   if (parseHash()) return; // recovery detected — scr-r is showing, stop here
@@ -2174,9 +2274,12 @@ function wire() {
   };
   if ($('m-forgot-cancel')) $('m-forgot-cancel').onclick = function() { closeModal('m-forgot'); };
   $('r-req-btn').onclick = function() {
-    // Match index.html: return to login instead of starting an email reset request.
     showScreen('scr-l');
+    openModal('m-forgot');
   };
+  if ($('w-google-btn')) $('w-google-btn').onclick = function() { doGoogleLogin('w-google-btn'); };
+  if ($('l-google-btn')) $('l-google-btn').onclick = function() { doGoogleLogin('l-google-btn'); };
+  if ($('s-google-btn')) $('s-google-btn').onclick = function() { doGoogleLogin('s-google-btn'); };
 
   // Eye toggles
   $('l-eye').onclick = function() { togglePw('l-pass', 'l-eye'); };
