@@ -364,38 +364,55 @@ html,body{background:var(--db-bg)!important;color:var(--db-text)!important;}
 .splash-foot{margin-top:48px;font-size:1rem;font-weight:800;color:rgba(255,255,255,.55);letter-spacing:.04em;}
 
 
-/* ── REQUESTED MINIMAL FIX ONLY ──
-   Restored previous version; this patch only removes Android brown tap squares
-   and improves alignment on very small screens. No backend script changed. */
-button,.btn,.btn-blue,.btn-lite,.plan-btn,.tab,.logout-btn,.plan-chip,input,select,textarea{
+/* ── LOCKED DESIGN: REQUESTED MICRO PATCH ONLY ──
+   Removes Android brown tap square, improves small-screen alignment,
+   adds greeting + avatar dropdown. No backend script changed. */
+button,.btn,.btn-blue,.btn-lite,.plan-btn,.tab,.logout-btn,.plan-chip,input,select,textarea,.avatar,.avatar-menu button{
   -webkit-tap-highlight-color:rgba(0,0,0,0)!important;
 }
-button:focus,.btn:focus,.plan-btn:focus,.tab:focus,.logout-btn:focus,.plan-chip:focus{
+button:focus,.btn:focus,.plan-btn:focus,.tab:focus,.logout-btn:focus,.plan-chip:focus,.avatar:focus,.avatar-menu button:focus{
   outline:none!important;
 }
-button,.btn,.plan-btn,.tab,.logout-btn,.plan-chip{
+button,.btn,.plan-btn,.tab,.logout-btn,.plan-chip,.avatar,.avatar-menu button{
   -webkit-appearance:none!important;
   appearance:none!important;
 }
+.top-bar{min-width:0!important;}
+.top-bar-title{min-width:0!important;-webkit-flex:0 1 auto!important;flex:0 1 auto!important;}
+.top-bar-right{min-width:0!important;-webkit-flex:0 0 auto!important;flex:0 0 auto!important;position:relative!important;}
+.user-greeting{font-size:.82rem!important;font-weight:900!important;color:#111827!important;max-width:116px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+.avatar-wrap{position:relative!important;display:inline-block!important;-webkit-flex-shrink:0!important;flex-shrink:0!important;}
+.avatar{border:0!important;cursor:pointer!important;padding:0!important;line-height:1!important;}
+.logout-btn{display:none!important;}
+.avatar-menu{display:none;position:absolute;right:0;top:42px;background:#fff;border:1px solid #E6EAF1;border-radius:16px;box-shadow:0 16px 30px rgba(15,23,42,.16);padding:10px;min-width:154px;z-index:500;text-align:left;}
+.avatar-menu.on{display:block;}
+.wallet-status{display:block;width:100%;border-radius:12px;padding:9px 10px;margin-bottom:8px;font-size:.76rem;font-weight:900;line-height:1.25;text-align:center;border:1px solid #E5E7EB;background:#fff;color:#111827;}
+.wallet-status.low{background:#FEF2F2!important;border-color:#FCA5A5!important;color:#B91C1C!important;}
+.wallet-status.normal{background:#fff!important;border-color:#E5E7EB!important;color:#111827!important;}
+.wallet-status.active{background:#ECFDF5!important;border-color:#86EFAC!important;color:#047857!important;}
+.avatar-signout{display:block;width:100%;border:0;background:#F8FAFC;color:#667085;border-radius:12px;padding:9px 10px;font-size:.78rem;font-weight:900;font-family:Arial,Helvetica,sans-serif;cursor:pointer;text-align:center;}
+.avatar-signout:active{background:#EEF2FF;}
 @media(max-width:380px){
-  .top-bar{padding:10px 10px!important;}
-  .top-bar svg{max-width:122px!important;height:32px!important;}
+  .top-bar{padding:10px 10px!important;gap:8px!important;}
+  .top-bar svg{max-width:118px!important;height:32px!important;}
   .top-bar-right{gap:6px!important;}
-  .avatar{width:30px!important;height:30px!important;font-size:.74rem!important;}
-  .logout-btn{padding:6px 8px!important;font-size:.72rem!important;border-radius:10px!important;}
+  .user-greeting{max-width:82px!important;font-size:.74rem!important;}
+  .avatar{width:30px!important;height:30px!important;font-size:.72rem!important;}
+  .avatar-menu{top:38px!important;right:-2px!important;min-width:146px!important;}
   .tabs{padding:8px 8px!important;gap:6px!important;}
   .tab{padding:8px 10px!important;font-size:.72rem!important;}
-  .tab-content{padding:12px 10px 24px!important;}
-  .card{padding:14px!important;}
-  #plans-list{grid-template-columns:1fr!important;gap:12px!important;}
-  .plan-card{min-height:auto!important;padding:14px!important;}
-  .plan-top{gap:6px!important;}
-  .plan-price{font-size:1.22rem!important;}
-  .auth-card{margin:0 10px!important;}
+  .tab-content{padding-left:10px!important;padding-right:10px!important;}
+  .auth-card{margin-left:10px!important;margin-right:10px!important;}
   .auth-hero{padding-left:14px!important;padding-right:14px!important;}
   .auth-wordmark{max-width:260px!important;}
   .splash-svg{max-width:280px!important;}
 }
+@media(max-width:320px){
+  .top-bar svg{max-width:104px!important;height:30px!important;}
+  .user-greeting{max-width:70px!important;font-size:.70rem!important;}
+  .tab{padding:7px 9px!important;font-size:.70rem!important;}
+}
+
 </style>
 </head>
 <body>
@@ -580,7 +597,14 @@ button,.btn,.plan-btn,.tab,.logout-btn,.plan-chip{
       </svg>
     </div>
     <div class="top-bar-right">
-      <div class="avatar" id="av"></div>
+      <div class="user-greeting" id="user-greeting">Hello</div>
+      <div class="avatar-wrap">
+        <button class="avatar" id="av" type="button" aria-label="Open account menu" onclick="toggleAvatarMenu()"></button>
+        <div class="avatar-menu" id="avatar-menu">
+          <div class="wallet-status normal" id="wallet-status">Normal Wallet</div>
+          <button class="avatar-signout" type="button" onclick="doLogout()">Sign out</button>
+        </div>
+      </div>
       <button class="logout-btn" id="logout-btn">Sign out</button>
     </div>
   </div>
@@ -1256,6 +1280,8 @@ function bootApp() {
   var i;
   for (i = 0; i < Math.min(parts.length, 2); i++) { if(parts[i]) initials += parts[i][0].toUpperCase(); }
   $('av').textContent = initials || 'U';
+  updateGreeting(name);
+  updateWalletLabel();
 
   showPage('app');
   showTab('plans');
@@ -1292,6 +1318,54 @@ function bootApp() {
     loadWalletBalance(function() {});
     loadInbox();
   }, 45000);
+}
+
+
+function firstNameFromUser(fallbackName) {
+  var raw = fallbackName || '';
+  try {
+    if ((!raw || raw === 'User') && gUser) {
+      var meta = gUser.user_metadata || {};
+      raw = meta.full_name || meta.name || (gUser.email ? gUser.email.split('@')[0] : 'User');
+    }
+  } catch(e) { raw = fallbackName || 'User'; }
+  raw = String(raw || 'User').replace(/^s+|s+$/g, '');
+  var first = raw.split(' ')[0] || 'User';
+  return first.charAt(0).toUpperCase() + first.slice(1);
+}
+
+function updateGreeting(name) {
+  var el = $('user-greeting');
+  if (!el) return;
+  el.textContent = 'Hello ' + firstNameFromUser(name);
+}
+
+function updateWalletLabel() {
+  var el = $('wallet-status');
+  if (!el) return;
+  var bal = parseFloat(gBal) || 0;
+  if (bal >= 10000) {
+    el.className = 'wallet-status active';
+    el.textContent = 'Active Wallet';
+  } else if (bal < 100) {
+    el.className = 'wallet-status low';
+    el.textContent = 'Low Wallet';
+  } else {
+    el.className = 'wallet-status normal';
+    el.textContent = 'Normal Wallet';
+  }
+}
+
+function toggleAvatarMenu() {
+  var m = $('avatar-menu');
+  if (!m) return;
+  updateWalletLabel();
+  m.className = (m.className.indexOf('on') === -1) ? 'avatar-menu on' : 'avatar-menu';
+}
+
+function closeAvatarMenu() {
+  var m = $('avatar-menu');
+  if (m) m.className = 'avatar-menu';
 }
 
 function doLogout() {
@@ -1339,6 +1413,7 @@ function loadWalletBalance(cb) {
         }
         if ($('d-va'))      $('d-va').textContent      = va;
         if ($('d-va-dash')) $('d-va-dash').textContent = va;
+        updateWalletLabel();
       }
       if (cb) cb();
     });
@@ -1676,6 +1751,7 @@ function loadAcct(name) {
     restGet('/profiles', 'user_id=eq.' + gUser.id + '&select=phone,full_name,virtual_account_number,virtual_bank_name,paystack_dva_account_number,paystack_dva_bank_name,paystack_dva_account_name', function(e, r) {
       if (r && r.ok && r.data && r.data[0]) {
         var p = r.data[0]; gProfile = p;
+        if (p.full_name) updateGreeting(p.full_name);
         var extra = '';
         if (p.phone) extra += '<div class="row-line"><span class="row-label">Phone</span><span class="row-val">' + esc(p.phone) + '</span></div>';
         if (p.virtual_account_number || p.paystack_dva_account_number) {
@@ -2522,6 +2598,13 @@ function wire() {
   $('m-va').onclick      = function(e) { if (e.target === $('m-va'))      closeModal('m-va'); };
   $('m-compose').onclick = function(e) { if (e.target === $('m-compose')) closeModal('m-compose'); };
   $('m-msg-detail').onclick = function(e) { if (e.target === $('m-msg-detail')) closeModal('m-msg-detail'); };
+
+  document.onclick = function(e) {
+    e = e || window.event;
+    var t = e.target || e.srcElement;
+    var wrap = document.getElementsByClassName ? document.getElementsByClassName('avatar-wrap')[0] : null;
+    if (wrap && t && !wrap.contains(t)) closeAvatarMenu();
+  };
 
   // Logout
   $('logout-btn').onclick = doLogout;
