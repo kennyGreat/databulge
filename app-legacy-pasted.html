@@ -362,6 +362,34 @@ html,body{background:var(--db-bg)!important;color:var(--db-text)!important;}
 .splash-svg{display:block;width:100%;max-width:320px;margin:0 auto 20px;}
 .splash-line{font-size:.82rem;color:rgba(255,255,255,.62);letter-spacing:.08em;text-transform:uppercase;font-weight:700;}
 .splash-foot{margin-top:48px;font-size:1rem;font-weight:800;color:rgba(255,255,255,.55);letter-spacing:.04em;}
+
+/* Android 11 and below visual artifact fix: remove brown tap boxes, double lines and native button outlines without changing layout */
+button,.btn,.btn-blue,.btn-lite,.plan-btn,.tab,.logout-btn,.avatar,input,select,textarea,.field input,.textarea{
+  -webkit-tap-highlight-color:rgba(0,0,0,0)!important;
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  outline:none!important;
+  background-clip:padding-box!important;
+}
+button:focus,.btn:focus,.plan-btn:focus,.tab:focus,.logout-btn:focus,.avatar:focus,input:focus,select:focus,textarea:focus{
+  outline:none!important;
+}
+button::-moz-focus-inner{border:0!important;padding:0!important;}
+.btn,.plan-btn,.tab,.logout-btn{
+  border-style:solid!important;
+  -webkit-transform:translateZ(0);
+  transform:translateZ(0);
+  position:relative;
+  overflow:hidden;
+}
+.plan-card,.card,.modal-box,.sub-row,.tx-row,.va-box,.msg-row{
+  -webkit-transform:translateZ(0);
+  transform:translateZ(0);
+  background-clip:padding-box!important;
+}
+.avatar{cursor:pointer!important;user-select:none!important;-webkit-user-select:none!important;}
+.avatar:active{opacity:.88!important;}
+
 </style>
 </head>
 <body>
@@ -2382,6 +2410,23 @@ function loadDashCashflow() {
   });
 }
 
+function getFirstName() {
+  var name = '';
+  try {
+    if (gProfile && gProfile.full_name) name = gProfile.full_name;
+    if (!name && gUser && gUser.user_metadata && gUser.user_metadata.full_name) name = gUser.user_metadata.full_name;
+    if (!name && gUser && gUser.email) name = gUser.email.split('@')[0];
+  } catch(e) {}
+  name = (name || 'there').replace(/^\s+|\s+$/g, '');
+  if (name.indexOf(' ') > -1) name = name.split(' ')[0];
+  return name || 'there';
+}
+
+function greetUserFromAvatar() {
+  toast('Hello ' + getFirstName());
+}
+
+
 function wire() {
   // Auth navigation
   $('w-login-btn').onclick  = function() { showScreen('scr-l'); };
@@ -2491,6 +2536,15 @@ function wire() {
 
   // Logout
   $('logout-btn').onclick = doLogout;
+
+  // Avatar greeting
+  if ($('av')) {
+    $('av').onclick = greetUserFromAvatar;
+    $('av').setAttribute('role','button');
+    $('av').setAttribute('tabindex','0');
+    $('av').setAttribute('title','Tap to greet');
+    $('av').onkeydown = function(e) { e = e || window.event; var k = e.keyCode || e.which; if (k === 13 || k === 32) greetUserFromAvatar(); };
+  }
 
   // Refresh subs
   $('refresh-subs-btn').onclick = function() { loadSubs(); toast('Refreshing\u2026'); };
